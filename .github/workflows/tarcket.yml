@@ -2,10 +2,8 @@ name: Get Targeting Data
 
 # Only trigger, when the build workflow succeeded
 on:
-  workflow_run:
-    workflows: ["Get Targeting Data"]
-    types:
-      - completed
+  schedule:
+    - cron:  '0 * * * *'
   push:
     branches:
       - main
