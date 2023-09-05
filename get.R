@@ -3,7 +3,7 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
   install.packages("pacman")
 }
 
-pacman::p_load(readr, glue, lubridate, janitor, purrr, dplyr, stringr, tidyr)
+pacman::p_load(readr, glue, lubridate, janitor, purrr, dplyr, stringr, tidyr, httr)
 
 
 walk_progress <- function(.x, .f, ...) {
