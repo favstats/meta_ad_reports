@@ -3,7 +3,7 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
   install.packages("pacman")
 }
 
-pacman::p_load(readr, glue, lubridate, janitor, purrr, dplyr, stringr)
+pacman::p_load(readr, glue, lubridate, janitor, purrr, dplyr, stringr, tidyr)
 
 
 source("utils.R")
@@ -111,15 +111,32 @@ scraper <- possibly(scraper, otherwise = NULL, quiet = F)
   
     # map_dfr_progress(scraper, tf = "7") 
   
-df <- tibble()
-    
-for (jj in enddat) {
-  # print(jj)
-  df <- bind_rows(df, scraper(jj, time = "7")) %>% 
-    mutate(cntry = jj$cntry[1],
-           date_produced = jj$date_produced[1])
+  # Initialize progress bar
+  total <- length(enddat)
+  # pb <- txtProgressBar(min = 0, max = total, style = 3)
   
-}
+  # Initialize dataframe
+  df <- tibble()
+  
+  options(scipen = 999)
+  
+  counter <- 1
+  for (jj in enddat) {
+    df <- bind_rows(df, scraper(jj, time = "7")) %>% 
+      mutate(cntry = jj$cntry[1],
+             date_produced = jj$date_produced[1])
+    
+    # Update progress bar
+    # setTxtProgressBar(pb, counter)
+    if(counter %% 10 == 0){
+      message(paste0(counter , "/", total, ": ", round(counter/total, 3)*100))
+    }   
+    
+    counter <- counter + 1
+  }
+  
+  # Close progress bar
+  # close(pb)
   
   # saveRDS()
 
@@ -127,7 +144,16 @@ df %>%
   group_by(cntry) %>% 
   group_split() %>% 
   walk(~{
-    saveRDS(.x, glue::glue("{the_folder}/{.x$cntry[1]}.rds"))
+    
+    try({
+      oldd <- readRDS(glue::glue("{the_folder}/{.x$cntry[1]}.rds"))
+    })
+    
+    if(!exists("oldd")) oldd <- tibble()
+    
+    fin <- .x %>% bind_rows(oldd) %>% distinct()
+    
+    saveRDS(fin, glue::glue("{the_folder}/{.x$cntry[1]}.rds"))
   })
   
   
