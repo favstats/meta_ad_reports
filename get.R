@@ -3,7 +3,57 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
   install.packages("pacman")
 }
 
+<<<<<<< HEAD
 pacman::p_load(readr, glue, lubridate, janitor, purrr, dplyr, stringr, tidyr)
+=======
+pacman::p_load(readr, glue, lubridate, janitor, purrr, dplyr, stringr, tidyr, httr, xml2, rvest)
+
+
+walk_progress <- function(.x, .f, ...) {
+  .f <- purrr::as_mapper(.f, ...)
+  pb <- progress::progress_bar$new(
+    total = length(.x), 
+    format = " (:spin) [:bar] :percent | :current / :total | eta: :eta",
+    # format = " downloading [:bar] :percent eta: :eta",
+    force = TRUE)
+  
+  f <- function(...) {
+    pb$tick()
+    .f(...)
+  }
+  purrr::walk(.x, f, ...)
+}
+
+map_progress <- function(.x, .f, ...) {
+  .f <- purrr::as_mapper(.f, ...)
+  pb <- progress::progress_bar$new(
+    total = length(.x), 
+    format = " (:spin) [:bar] :percent | :current / :total | eta: :eta",
+    # format = " downloading [:bar] :percent eta: :eta",
+    force = TRUE)
+  
+  f <- function(...) {
+    pb$tick()
+    .f(...)
+  }
+  purrr::map(.x, f, ...)
+}
+
+map_dfr_progress <- function(.x, .f, ...) {
+  .f <- purrr::as_mapper(.f, ...)
+  pb <- progress::progress_bar$new(
+    total = length(.x), 
+    format = " (:spin) [:bar] :percent | :current / :total | eta: :eta",
+    # format = " downloading [:bar] :percent eta: :eta",
+    force = TRUE)
+  
+  f <- function(...) {
+    pb$tick()
+    .f(...)
+  }
+  purrr::map_dfr(.x, f, ...)
+}
+>>>>>>> 99f737c434cd4d6adfa05baea94d904d9382817a
 
 
 source("utils.R")
