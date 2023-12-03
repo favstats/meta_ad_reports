@@ -8,7 +8,7 @@ on:
       
 jobs:
   update-google-reports:
-    name: Update Google Reports
+    name: Update Meta Reports
     runs-on: ubuntu-20.04
     permissions:
       contents: write
@@ -84,7 +84,7 @@ jobs:
         shell: Rscript {0}
       - name: Pull Latest Changes
         run: git pull origin main
-      - name: "Script - Google Run"
+      - name: "Script - Meta Run"
         run: Rscript 'reports.R'
 
 

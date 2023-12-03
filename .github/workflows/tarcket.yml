@@ -1,16 +1,14 @@
-name: Get Targeting Data
-
-# Only trigger, when the build workflow succeeded
+name: "Meta Targeting"
 on:
   schedule:
-    - cron:  '0 * * * *'
+    - cron: '0 5,6,17,18 * * *'
   push:
     branches:
       - main
       
 jobs:
-  update-seven-targets:
-    name: Update Seven Targets
+  update-google-reports:
+    name: Update Meta Targeting
     runs-on: ubuntu-20.04
     permissions:
       contents: write
@@ -23,6 +21,42 @@ jobs:
           r-version: 'release'
       - name: Setup - Checkout repo
         uses: actions/checkout@v3
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          cache-version: 1
+          needs: |
+            any::tidyverse
+            any::httr
+            any::remotes
+            any::shiny
+            any::scales
+            any::treemap
+            any::here
+            any::jsonlite
+            any::janitor
+            any::quarto
+            any::highcharter
+            any::lubridate
+            any::gt
+            any::gtExtras
+            any::pacman
+            any::openxlsx
+            any::sf
+            any::xml2
+            any::rvest
+            any::reticulate
+            any::fs
+            any::countrycode
+            any::progress
+            any::cli
+            any::digest
+            any::glue
+            any::vroom
+            any::prettydoc
+            any::DT
+      - name: Apt-get update things
+        run: |
+          sudo apt-get update 
       - name: Apt-get needed things
         run: |
           sudo apt-get install --no-install-recommends -y \
@@ -31,17 +65,11 @@ jobs:
           libxml2-dev \
           libharfbuzz-dev \
           libfribidi-dev
-      - run: echo "🍏 This job's status is ${{ job.status }}."
-
-      - name: "Install Packages"
-        run: |
-          install.packages('pacman')
-        shell: Rscript {0}
-      - name: "Script - Run"
+      - name: "Script - Targeting Run"
         run: Rscript 'get.R'
 
 
       - name: "Commit"
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Retrieve Seven Reports
+          commit_message: Retrieve Google Reports
