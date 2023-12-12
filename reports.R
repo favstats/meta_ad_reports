@@ -80,7 +80,7 @@ cntries <- c("AD", "AE", "AG", "AI", "AL", "AM", "AO", "AR", "AT", "AU", "AZ", "
              "SG", "SH", "SI", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV",
              "SZ", "TC", "TD", "TG", "TH", "TJ", "TM", "TN", "TO", "TR", "TT", "TV",
              "TW", "TZ", "UA", "UG", "US", "UY", "UZ", "VC", "VE", "VG", "VI", "VN",
-             "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW", "XK") %>% unique
+             "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW", "XK", "TL") %>% unique
 
 
 
