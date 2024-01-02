@@ -19,14 +19,23 @@ user_pref("app.update.auto.migrated", true);
 user_pref("app.update.checkInstallTime", false);
 user_pref("app.update.disabledForTesting", true);
 user_pref("app.update.enabled", false);
+<<<<<<< HEAD
 user_pref("app.update.lastUpdateTime.addon-background-update-timer", 1701601450);
 user_pref("app.update.lastUpdateTime.background-update-timer", 1701601450);
 user_pref("app.update.lastUpdateTime.browser-cleanup-thumbnails", 1701609004);
 user_pref("app.update.lastUpdateTime.region-update-timer", 1701510278);
 user_pref("app.update.lastUpdateTime.services-settings-poll-changes", 1701601450);
 user_pref("app.update.lastUpdateTime.telemetry_modules_ping", 1701510306);
+=======
+user_pref("app.update.lastUpdateTime.addon-background-update-timer", 1704171908);
+user_pref("app.update.lastUpdateTime.background-update-timer", 1704171908);
+user_pref("app.update.lastUpdateTime.browser-cleanup-thumbnails", 1704171908);
+user_pref("app.update.lastUpdateTime.region-update-timer", 1704171908);
+user_pref("app.update.lastUpdateTime.services-settings-poll-changes", 1704171908);
+user_pref("app.update.lastUpdateTime.telemetry_modules_ping", 1703394417);
+>>>>>>> 03b2f07993eed4a8ccc2a8ff6148bdf5d12692a9
 user_pref("app.update.lastUpdateTime.telemetry_untrustedmodules_ping", 0);
-user_pref("app.update.lastUpdateTime.xpi-signature-verification", 1701601450);
+user_pref("app.update.lastUpdateTime.xpi-signature-verification", 1704171908);
 user_pref("app.update.migrated.updateDir3.A48687D5A1514A00", true);
 user_pref("app.update.mode", 0);
 user_pref("app.update.service.enabled", false);
@@ -61,20 +70,30 @@ user_pref("browser.search.geoSpecificDefaults.url", "");
 user_pref("browser.search.region", "NL");
 user_pref("browser.search.update", false);
 user_pref("browser.sessionstore.resume_from_crash", false);
-user_pref("browser.sessionstore.upgradeBackup.latestBuildID", "20231107144455");
+user_pref("browser.sessionstore.upgradeBackup.latestBuildID", "20231107063117");
 user_pref("browser.shell.checkDefaultBrowser", false);
 user_pref("browser.startup.couldRestoreSession.count", 2);
 user_pref("browser.startup.homepage", "about:blank");
 user_pref("browser.startup.homepage_override.mstone", "ignore");
+<<<<<<< HEAD
 user_pref("browser.startup.lastColdStartupCheck", 1701608989);
+=======
+user_pref("browser.startup.lastColdStartupCheck", 1704175514);
+>>>>>>> 03b2f07993eed4a8ccc2a8ff6148bdf5d12692a9
 user_pref("browser.startup.page", 0);
 user_pref("browser.tabs.disableBackgroundZombification", false);
 user_pref("browser.tabs.warnOnCloseOtherTabs", false);
 user_pref("browser.tabs.warnOnOpen", false);
+<<<<<<< HEAD
 user_pref("browser.theme.toolbar-theme", 2);
 user_pref("browser.topsites.contile.cacheValidFor", 9143);
 user_pref("browser.topsites.contile.cachedTiles", "[{\"id\":74301,\"name\":\"Amazon\",\"url\":\"https://www.amazon.com/?tag=admarketus-20&ref=pd_sl_e10c028f8dcf61067c3370eb86b60d1c08e63f885ace648e1be0277c&mfadid=adm\",\"click_url\":\"https://bridge.sfo1.ap01.net/ctp?version=16.0.0&ci=1701599130594.12791&key=1701599130400900000.1&ctag=pd_sl_e10c028f8dcf61067c3370eb86b60d1c08e63f885ace648e1be0277c\",\"image_url\":\"https://contile-images.services.mozilla.com/obgoOYObjIFea_bXuT6L4LbBJ8j425AD87S1HMD3BWg.9991.jpg\",\"image_size\":200,\"impression_url\":\"https://imp.mt48.net/static?id=7RHzfOIXjFEYsBdvIpkX4ZbX4Cq%2BfCfW4pbW1CbWfpbW7ReNxR3UIG8zInwYIFIVs9eYiGINHrwkiFXwxYIZjF8XgClWfC2X7R4dHQ8zJnErj%3DcO7R4dHQfz4Z2ZfplnHG3Z5FwqgCfX1p8d4Cxr1BINI9HuiF2z4Z2ZfplnHmcux%3DcvImauiF2zfQlWfp2%2B7ncqIr7VjGbuiF2zfCfk4Qxr4Qfnj9wWIBdvIpkY7R4TJr2uJREuHnEYgClnHr7wHG3vjnDuiF2zfCbY4BIWJ%3DcQIFdwJR2uiF2zfCbW4Wyy\"},{\"id\":75033,\"name\":\"T-Mobile\",\"url\":\"https://www.t-mobile.com/cell-phones/brand/apple?cmpid=MGPO_PAM_P_EVGRNIPHN_1701599130400900000&mfadid=adm\",\"click_url\":\"https://bridge.sfo1.admarketplace.net/ctp?version=16.0.0&ci=1701599130594.12791&key=1701599130400900000.2&ctag=1701599130400900000\",\"image_url\":\"https://contile-images.services.mozilla.com/T23eBL4EHswiSaF6kya2gYsRHvdfADK-NYjs1mVRNGE.3351.jpg\",\"image_size\":200,\"impression_url\":\"https://imp.mt48.net/static?id=7RHzfOIXjFEYsBdvIpkX4ZbX4Cq%2BfCfW4pbW1CbWfpbW7ReNxR3UIG8zInwYIFIVs9eYiGINHrwkiFXwxYIZjF8XgClWfC2X7R4dHQ8zJnErj%3DcO7R4dHQfz4ZDWfZfnHG3Z5FwqgCfX1p8d4Cxr1BINI9HuiF2z4ZDWfZfnHmcux%3DcvImauiF2zfQ8WfQLr7ncqIr7VjGbuiF2zfCDk1p8ZfZfnj9wWIBdvIpkY7R4TJr2uJREuHnEYgC8nHr7wHG3vjnDuiF2z4Zfd1BIWJ%3DcQIFdwJR2uiF2zfCbW4Wyy\"}]");
 user_pref("browser.topsites.contile.lastFetch", 1701608990);
+=======
+user_pref("browser.topsites.contile.cacheValidFor", 10831);
+user_pref("browser.topsites.contile.cachedTiles", "[{\"id\":74301,\"name\":\"Amazon\",\"url\":\"https://www.amazon.com/?tag=admarketus-20&ref=pd_sl_e5a83e785ee5a2e132948fcb3723c61721858238dd9c223c7077175a&mfadid=adm\",\"click_url\":\"https://bridge.sfo1.ap01.net/ctp?version=16.0.0&key=1704173615400800000.1&ci=1704173615297.12791&ctag=pd_sl_e5a83e785ee5a2e132948fcb3723c61721858238dd9c223c7077175a\",\"image_url\":\"https://contile-images.services.mozilla.com/obgoOYObjIFea_bXuT6L4LbBJ8j425AD87S1HMD3BWg.9991.jpg\",\"image_size\":200,\"impression_url\":\"https://imp.mt48.net/static?id=7RHzfOIXjFEYsBdvIpkX4ZbkfCxZ4Qld4pbW1pbWfpbW7ReNxR3UIG8zInwYIFIVs9eYiGINHrwkiFXwxYIZjF8XgClWfC2X7R4dHQ8zJnErj%3DcO7R4dHQfz4Z2ZfplnHG3Z5FwqgCfX1p8d4Cxr1BINI9HuiF2z4Z2ZfplnHmcux%3DcvImauiF2zfQlWfp2%2B7ncqIr7VjGbuiF2zfCfk4Qxr4Qfnj9wWIBdvIpkY7R4TJr2uJREuHnEYgClnHr7wHG3vjnDuiF2zfCbY4BIWJ%3DcQIFdwJR2uiF2zfCbW4Wyy\"},{\"id\":74896,\"name\":\"Home Depot\",\"url\":\"https://www.homedepot.com/?mtc=SEM-BF-CDP-AMP-Multi-Multi-NA-NA-NA-MULTI-NA-NA-NA-NA-BT2-NA-NA-NA-Brand_Privacy&cm_mmc=SEM-BF-CDP-AMP-Multi-Multi-NA-NA-NA-MULTI-NA-NA-NA-NA-BT2-NA-NA-NA-Brand_Privacy_amp1704173615400800000&mfadid=adm\",\"click_url\":\"https://bridge.sfo1.admarketplace.net/ctp?version=16.0.0&key=1704173615400800000.2&ci=1704173615297.12791&ctag=1704173615400800000\",\"image_url\":\"https://contile-images.services.mozilla.com/UV9WZ3FyH_HycbEWYC69D0vgspxXd9JmjStFfGbjJX0.11415.jpg\",\"image_size\":200,\"impression_url\":\"https://imp.mt48.net/static?id=7RHzfOIXjFEYsBdvIpkX4ZbkfCxZ4Qld4pbW1pbWfpbW7ReNxR3UIG8zInwYIFIVs9eYiGINHrwkiFXwxYIZjF8XgClWfC2X7R4dHQ8zJnErj%3DcO7R4dHQfz4Z2a1CHnHG3Z5FwqgCfX1p8d4Cxr1BINI9HuiF2z4Z2a1CHnHmcux%3DcvImauiF2zfQl%2B4ZHm7ncqIr7VjGbuiF2zfCDkfCHZ4Zbnj9wWIBdvIpkY7R4TJr2uJREuHnEYgC8nHr7wHG3vjnDuiF2z4ZDr7ReTHF4wJFEUjtdvIpkXfpbr\"}]");
+user_pref("browser.topsites.contile.lastFetch", 1704175514);
+>>>>>>> 03b2f07993eed4a8ccc2a8ff6148bdf5d12692a9
 user_pref("browser.translations.enable", false);
 user_pref("browser.uiCustomization.state", "{\"placements\":{\"widget-overflow-fixed-list\":[],\"unified-extensions-area\":[],\"nav-bar\":[\"back-button\",\"forward-button\",\"stop-reload-button\",\"customizableui-special-spring1\",\"urlbar-container\",\"customizableui-special-spring2\",\"save-to-pocket-button\",\"downloads-button\",\"fxa-toolbar-menu-button\",\"unified-extensions-button\"],\"toolbar-menubar\":[\"menubar-items\"],\"TabsToolbar\":[\"firefox-view-button\",\"tabbrowser-tabs\",\"new-tab-button\",\"alltabs-button\"],\"PersonalToolbar\":[\"import-button\",\"personal-bookmarks\"]},\"seen\":[\"save-to-pocket-button\",\"developer-button\"],\"dirtyAreaCache\":[\"nav-bar\",\"PersonalToolbar\",\"toolbar-menubar\",\"TabsToolbar\"],\"currentVersion\":19,\"newElementCount\":2}");
 user_pref("browser.uitour.enabled", false);
@@ -149,10 +168,17 @@ user_pref("gfx-shader-check.ptr-size", 8);
 user_pref("gfx.color_management.mode", 0);
 user_pref("gfx.color_management.rendering_intent", 3);
 user_pref("hangmonitor.timeout", 0);
+user_pref("idle.lastDailyNotification", 1703999134);
 user_pref("javascript.options.showInConsole", true);
+<<<<<<< HEAD
 user_pref("media.gmp-manager.buildID", "20231107144455");
 user_pref("media.gmp-manager.lastCheck", 1701609092);
 user_pref("media.gmp-manager.lastEmptyCheck", 1701609093);
+=======
+user_pref("media.gmp-manager.buildID", "20231107063117");
+user_pref("media.gmp-manager.lastCheck", 1704171903);
+user_pref("media.gmp-manager.lastEmptyCheck", 1704171903);
+>>>>>>> 03b2f07993eed4a8ccc2a8ff6148bdf5d12692a9
 user_pref("media.gmp-manager.updateEnabled", false);
 user_pref("media.gmp.storage.version.observed", 1);
 user_pref("media.hardware-video-decoding.failed", false);
@@ -166,7 +192,10 @@ user_pref("network.sntp.pools", "");
 user_pref("pdfjs.disabled", true);
 user_pref("pdfjs.enabledCache.state", false);
 user_pref("permissions.isolateBy.userContext", true);
+user_pref("places.database.lastMaintenance", 1703999134);
 user_pref("plugin.state.flash", 0);
+user_pref("privacy.purge_trackers.date_in_cookie_database", "0");
+user_pref("privacy.purge_trackers.last_purge", "1703999134923");
 user_pref("privacy.sanitize.pending", "[]");
 user_pref("prompts.contentPromptSubDialog", false);
 user_pref("sanity-test.device-id", "0x1681");
@@ -182,9 +211,16 @@ user_pref("services.settings.server", "");
 user_pref("signon.autofillForms", false);
 user_pref("signon.rememberSignons", false);
 user_pref("startup.homepage_welcome_url", "about:blank");
+user_pref("storage.vacuum.last.content-prefs.sqlite", 1703308059);
+user_pref("storage.vacuum.last.index", 2);
+user_pref("storage.vacuum.last.places.sqlite", 1703135283);
 user_pref("toolkit.cosmeticAnimations.enabled", false);
 user_pref("toolkit.shutdown.fastShutdownStage", 3);
+<<<<<<< HEAD
 user_pref("toolkit.startup.last_success", 1701608972);
+=======
+user_pref("toolkit.startup.last_success", 1704175511);
+>>>>>>> 03b2f07993eed4a8ccc2a8ff6148bdf5d12692a9
 user_pref("toolkit.startup.max_resumed_crashes", -1);
 user_pref("toolkit.telemetry.cachedClientID", "c0ffeec0-ffee-c0ff-eec0-ffeec0ffeec0");
 user_pref("toolkit.telemetry.enabled", false);
