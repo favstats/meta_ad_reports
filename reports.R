@@ -6,6 +6,7 @@ source("utils.R")
 options(python_init = TRUE)
 
 # cntry_str <- "NL"
+tf <- commandArgs(trailingOnly = TRUE)
 
 
 # install.packages("pacman")
@@ -274,9 +275,15 @@ dt %>%
     if (!fs::dir_exists(path_dir))
       fs::dir_create(path_dir)
     
-    # time_preset <- "yesterday"
-    # time_preset <- "lifelong"
-    time_preset <- "last_7_days"
+
+    if(length(tf)==0){
+      
+      time_preset <- "last_7_days"
+      # time_preset <- "last_30_days"
+      # time_preset <- "yesterday"
+      # time_preset <- "lifelong"
+      
+    }
     
     
     js_code <-
