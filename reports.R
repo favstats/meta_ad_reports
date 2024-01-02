@@ -6,7 +6,7 @@ source("utils.R")
 options(python_init = TRUE)
 
 # cntry_str <- "NL"
-tf <- commandArgs(trailingOnly = TRUE)
+time_preset <- commandArgs(trailingOnly = TRUE)
 
 
 # install.packages("pacman")
@@ -276,7 +276,7 @@ dt %>%
       fs::dir_create(path_dir)
     
 
-    if(length(tf)==0){
+    if(length(time_preset)==0){
       
       time_preset <- "last_7_days"
       # time_preset <- "last_30_days"
