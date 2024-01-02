@@ -275,8 +275,11 @@ dt %>%
     if (!fs::dir_exists(path_dir))
       fs::dir_create(path_dir)
     
-
+    print(time_preset)
+    
     if(length(time_preset)==0){
+      
+      print("ATTENTION FOR SOME REASON NO TIMEPRESET")
       
       time_preset <- "last_7_days"
       # time_preset <- "last_30_days"
