@@ -7,7 +7,7 @@ options(python_init = TRUE)
 
 # cntry_str <- "NL"
 time_preset <- commandArgs(trailingOnly = TRUE)
-
+# time_preset <- "last_30_days"
 
 # install.packages("pacman")
 pacman::p_load(
@@ -242,7 +242,7 @@ dt <- expand_grid(countries, daysies) %>%
 
 
 try({
-  all_reports_old <- readRDS("logs/all_reports_lifelong.rds")
+  all_reports_old <- readRDS(paste0("logs/all_reports_", time_preset, ".rds"))
 })
 
 if(!exists("all_reports_old")){
@@ -255,13 +255,15 @@ dir.create("report")
 print("creation")
 
 
+
 dt %>%
   # arrange(day, country != "RU") %>%
   filter(country %in% cntries) %>%
   arrange(desc(day), country) %>%
-  filter(day >= lubridate::ymd("2023-11-30")) %>% 
-  # slice(6:8) %>%
-  split(1:nrow(.)) %>%# bashR::simule_map(1)
+  # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
+  filter(day >= (lubridate::ymd("2023-10-01"))) %>% 
+  # slice(496:500) %>%
+  split(1:nrow(.)) %>% #bashR::simule_map(1)
   walk_progress( ~ {
     # browser()
     file_name <-
@@ -275,14 +277,14 @@ dt %>%
     if (!fs::dir_exists(path_dir))
       fs::dir_create(path_dir)
     
-    print(time_preset)
+    # print(time_preset)
     
     if(length(time_preset)==0){
       
       print("ATTENTION FOR SOME REASON NO TIMEPRESET")
       
-      time_preset <- "last_7_days"
-      # time_preset <- "last_30_days"
+      # time_preset <- "last_7_days"
+      time_preset <- "last_30_days"
       # time_preset <- "yesterday"
       # time_preset <- "lifelong"
       
@@ -447,7 +449,7 @@ all_reports <- all_reports_old %>%
   unique()
 print("################11")
 
-saveRDS(all_reports, file = "logs/all_reports_lifelong.rds")
+saveRDS(all_reports, file = paste0("logs/all_reports_", time_preset, ".rds"))
 
 print("################12")
 
