@@ -296,9 +296,9 @@ dt %>%
   arrange(desc(day), country) %>%
   anti_join(thosearethere) %>% 
   # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
-  filter(day >= (lubridate::ymd("2022-10-01"))) %>% 
-  # slice(496:500) %>%
-  sample_n(10) %>%
+  filter(day >= (lubridate::ymd("2023-12-31"))) %>% 
+  slice(1:5000) %>%
+  # sample_n(10) %>%
   split(1:nrow(.)) %>% #bashR::simule_map(1)
   walk_progress( ~ {
     
@@ -401,9 +401,19 @@ report_paths <- dir(paste0("report"), full.names = T, recursive = T) %>%
   # keep(~str_detect(.x, "2024-01-01"))
   # .[200:202]
 
+latest_dat <- tat_path %>%
+  group_by(country) %>% 
+  arrange(desc(day)) %>% 
+  slice(1) %>% 
+  ungroup()
 
-
-
+# session("https://github.com/favstats/meta_ad_reports/releases/tag/ZW-lifelong") %>% 
+#   html_elements(".mb-3") %>% 
+#   html_text() %>% str_squish()
+#   # html_children() %>% 
+#   str_detect("2024-01-01")
+# 
+#   https://github.com/favstats/meta_ad_reports/releases/download/ZW-lifelong/2024-01-01.rds
 
 progress_bar <- function(current, total, bar_width = 50) {
   # Calculate the percentage completed
@@ -500,8 +510,26 @@ for (report_path in report_paths) {
   try({
     print(paste0(the_date, ".rds"))
     print(the_tag)
+    
     pb_upload(paste0(the_date, ".rds"), repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)
     pb_upload(paste0(the_date, ".zip"), repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)
+    
+    lat_dat <- latest_dat %>% 
+      filter(country == cntry_str)
+    
+    check_it <- lubridate::ymd(the_date) >= lat_dat$day
+    if(!is.null(check_it)){
+      if(check_it){
+        file.rename(paste0(the_date, ".rds"), "latest.rds")
+        
+        pb_upload("latest.rds", repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)     
+        
+        file.remove("latest.rds")
+      }
+    }
+    
+
+    
     
     file.remove(paste0(the_date, ".rds"))
     file.remove(paste0(the_date, ".zip"))   
