@@ -86,7 +86,7 @@ jobs:
       - name: Pull Latest Changes
         run: git pull origin main
       - name: "Script - Meta Run"
-        run: Rscript 'reports.R' "last_90_days"
+        run: Rscript 'reports.R' "lifelong"
 
 
       - name: "Commit"

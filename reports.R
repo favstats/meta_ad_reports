@@ -296,7 +296,7 @@ dt %>%
   # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
   filter(day >= (lubridate::ymd("2022-10-01"))) %>% 
   # slice(496:500) %>%
-  # sample_n(100) %>% 
+  sample_n(100) %>%
   split(1:nrow(.)) %>% #bashR::simule_map(1)
   walk_progress( ~ {
     
