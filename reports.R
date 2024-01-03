@@ -7,7 +7,7 @@ options(python_init = TRUE)
 
 # cntry_str <- "NL"
 time_preset <- commandArgs(trailingOnly = TRUE)
-time_preset <- "last_7_days"
+# time_preset <- "last_7_days"
 
 # install.packages("pacman")
 pacman::p_load(
