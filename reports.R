@@ -279,6 +279,15 @@ if(nrow(thosearethere)==0){
 # thosearethere %>% write_rds("test.rds", compress = "xz")
 # thosearethere %>% saveRDS("test2.rds")
 
+download_it <- function(download_url, file_name) {
+  download.file(download_url,
+                file_name,
+                quiet = T,
+                mode = "wb")   
+}
+
+download_it_now <- safely(download_it, quiet = F)
+
 dt %>%
   # arrange(day, country != "RU") %>%
   filter(country %in% cntries) %>%
@@ -290,7 +299,6 @@ dt %>%
   # sample_n(100) %>% 
   split(1:nrow(.)) %>% #bashR::simule_map(1)
   walk_progress( ~ {
-    
     
 
     # browser()
@@ -348,13 +356,11 @@ dt %>%
       Sys.sleep(10)
       return("Blocked")
     } else {
-      try({
-        download.file(download_url,
-                      file_name,
-                      quiet = T,
-                      mode = "wb")       
-      })
-
+      # try({
+        res <- download_it_now(download_url, file_name)       
+      # })
+      if(is.null(res$error)) return("Waitlisted")
+        
     }
     
     
@@ -384,10 +390,15 @@ dt %>%
 print("NL DOWNLOADED")
 dir.create("reports")
 
+tat_path <- thosearethere %>% 
+  mutate(path = paste0("report/", country, "/", day, "-", timeframe, ".zip"))
 
 report_paths <- dir(paste0("report"), full.names = T, recursive = T) %>%
-  sort(decreasing = T)# %>% 
+  sort(decreasing = T) %>%
+  setdiff(tat_path$path) %>% 
+  keep(~str_detect(.x, "2024-01-01"))
   # .[200:202]
+
 
 
 
