@@ -1,5 +1,6 @@
 library(playwrightr)
 # library(tidyverse)
+options(timeout=300)
 
 source("utils.R")
 
@@ -7,7 +8,7 @@ options(python_init = TRUE)
 
 # cntry_str <- "NL"
 time_preset <- commandArgs(trailingOnly = TRUE)
-time_preset <- "lifelong"
+# time_preset <- "last_7_days"
 
 # install.packages("pacman")
 pacman::p_load(
@@ -347,10 +348,13 @@ dt %>%
       Sys.sleep(10)
       return("Blocked")
     } else {
-      download.file(download_url,
-                    file_name,
-                    quiet = T,
-                    mode = "wb")
+      try({
+        download.file(download_url,
+                      file_name,
+                      quiet = T,
+                      mode = "wb")       
+      })
+
     }
     
     
