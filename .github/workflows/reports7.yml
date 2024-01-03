@@ -54,6 +54,7 @@ jobs:
             any::vroom
             any::prettydoc
             any::DT
+            any::piggyback
       - name: Apt-get update things
         run: |
           sudo apt-get update 

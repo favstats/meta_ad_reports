@@ -7,7 +7,7 @@ options(python_init = TRUE)
 
 # cntry_str <- "NL"
 time_preset <- commandArgs(trailingOnly = TRUE)
-# time_preset <- "last_7_days"
+# time_preset <- "lifelong"
 
 # install.packages("pacman")
 pacman::p_load(
@@ -266,10 +266,11 @@ full_repos <- pb_list() %>% as_tibble()
 
 thosearethere <- full_repos %>% 
   arrange(desc(tag)) %>% 
-  separate(tag, into = c("cntry", "timeframe"), remove = F, sep = "-") %>% 
+  separate(tag, into = c("country", "timeframe"), remove = F, sep = "-") %>% 
   mutate(day  = str_remove(file_name, "\\.rds|\\.zip")) %>% 
-  distinct(cntry, day, timeframe) %>% 
-  filter(str_detect(timeframe, time_preset))
+  distinct(country, day, timeframe) %>% 
+  filter(str_detect(timeframe, time_preset)) %>% 
+  mutate(day = lubridate::ymd(day))
 
 if(nrow(thosearethere)==0){
   thosearethere <- tibble(timeframe = "", day = lubridate::ymd("2020-01-01"))
@@ -285,7 +286,7 @@ dt %>%
   # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
   filter(day >= (lubridate::ymd("2022-10-01"))) %>% 
   # slice(496:500) %>%
-  sample_n(100) %>% 
+  # sample_n(100) %>% 
   split(1:nrow(.)) %>% #bashR::simule_map(1)
   walk_progress( ~ {
     
@@ -411,7 +412,7 @@ progress_bar <- function(current, total, bar_width = 50) {
 # full_repos$tag %>% unique %>% 
 #   walk(~{pb_release_delete(tag= .x)})
 
-report_path <- report_paths[4]
+# report_path <- report_paths[1]
 
 
 for (report_path in report_paths) {
@@ -423,7 +424,9 @@ for (report_path in report_paths) {
   rawww <-  str_split(report_path, "/") %>% unlist 
   
   cntry_str <- rawww[2]
-  the_date <- str_remove(rawww[3], ".zip")   
+  
+  tframe <- str_remove(str_split(rawww, "-") %>% unlist() %>% .[length(.)], ".zip")
+  the_date <- str_remove_all(rawww[3], paste0(".zip|-", tframe))   
   
    cntry_name <- full_cntry_list %>% 
     filter(iso2c == cntry_str) %>% 
@@ -431,14 +434,14 @@ for (report_path in report_paths) {
   
   extracted_path <- dir("extracted", full.names = T, recursive = F) %>% 
     keep(~ str_detect(.x, "advert")) %>%
-    keep(~ str_detect(.x, cntry_str) & str_detect(.x, as.character(lubridate::ymd(the_date)-1)) & str_detect(.x, time_preset)) 
+    keep(~ str_detect(.x, cntry_str) & str_detect(.x, as.character(lubridate::ymd(the_date)-1)) & str_detect(.x, tframe)) 
   
   if(length(extracted_path)==0){
     print("no data")
     next
   }
   
-  tframe <- str_extract(extracted_path, "yesterday|last_7_days|last_30_days|last_90_days|lifelong")
+  # tframe <- str_extract(extracted_path, "yesterday|last_7_days|last_30_days|last_90_days|lifelong")
   
   thedata <- vroom::vroom(extracted_path, show_col_types = F) %>%
     janitor::clean_names() %>%
