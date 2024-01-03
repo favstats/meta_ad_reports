@@ -7,7 +7,7 @@ options(python_init = TRUE)
 
 # cntry_str <- "NL"
 time_preset <- commandArgs(trailingOnly = TRUE)
-time_preset <- "lifelong"
+time_preset <- "last_7_days"
 
 # install.packages("pacman")
 pacman::p_load(
@@ -27,7 +27,8 @@ pacman::p_load(
   rvest,
   cli,
   digest,
-  readr
+  readr,
+  piggyback
 )
 
 
@@ -59,31 +60,17 @@ browser_df <- browser_launch(
   user_data_dir = "out"
 )
 
-dir.create("lifelong")
 
 
 
+full_cntry_list <- readRDS("cntry_list.rds") %>% 
+  rename(iso2c = iso2,
+         country = cntry) 
 
 
-cntries <- c("AD", "AE", "AG", "AI", "AL", "AM", "AO", "AR", "AT", "AU", "AZ", "BA",
-             "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BM", "BN", "BO", "BR",
-             "BS", "BT", "BW", "BY", "BZ", "CA", "CD", "CF", "CG", "CH", "CI", "CL",
-             "CM", "CO", "CR", "CV", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ",
-             "EC", "EE", "EG", "ER", "ES", "ET", "FI", "FJ", "FK", "FM", "FR", "GA",
-             "GB", "GD", "GE", "GG", "GH", "GI", "GM", "GN", "GQ", "GR", "GT", "GW",
-             "GY", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IM", "IN", "IQ", "IS",
-             "IT", "JE", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KW",
-             "KY", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV",
-             "LY", "MA", "MC", "MD", "ME", "MG", "MH", "MK", "ML", "MM", "MN", "MR",
-             "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NE", "NG", "NI",
-             "NL", "NO", "NP", "NR", "NZ", "OM", "PA", "PE", "PG", "PH", "PK", "PL",
-             "PS", "PT", "PW", "PY", "QA", "RO", "RS", "RW", "SA", "SB", "SC", "SE",
-             "SG", "SH", "SI", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV",
-             "SZ", "TC", "TD", "TG", "TH", "TJ", "TM", "TN", "TO", "TR", "TT", "TV",
-             "TW", "TZ", "UA", "UG", "US", "UY", "UZ", "VC", "VE", "VG", "VI", "VN",
-             "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW", "XK", "TL") %>% unique
+cntries <- full_cntry_list$iso2c
 
-cntries <- "US"
+# cntries <- "US"
 
 # retrieve_dats <- function(cntry) {
 #   
@@ -241,35 +228,74 @@ dt <- expand_grid(countries, daysies) %>%
   glimpse
 
 
-try({
-  all_reports_old <- readRDS(paste0("logs/all_reports_", time_preset, ".rds"))
-})
-
-if(!exists("all_reports_old")){
-  all_reports_old <- c()
-}
+# try({
+#   all_reports_old <- readRDS(paste0("logs/all_reports_", time_preset, ".rds"))
+# })
+# 
+# if(!exists("all_reports_old")){
+#   all_reports_old <- c()
+# }
 
 # dir("report/ES", full.names = T, recursive = T) %>% sort
 dir.create("extracted")
 dir.create("report")
 print("creation")
 
+library(tidyverse)
+# readRDS("reports/US/last_30_days.rds") %>% count(date)
 
+# thosearethere <- dir("reports") %>% 
+#   map_dfr_progress(~{
+#     
+#     if(file.exists(paste0("reports/", .x,"/", time_preset, ".rds"))){
+#       return(read_rds(paste0("reports/", .x,"/", time_preset, ".rds")))
+#     }
+#     
+#     }) 
+# 
+# if(nrow(thosearethere)!=0){
+#   thosearethere <- thosearethere %>% 
+#     distinct(cntry, date) %>% 
+#     rename(day = date) %>% 
+#     mutate(day = lubridate::ymd(day))
+# } else {
+#   thosearethere <- thosearethere %>% mutate(cntry = NA, day = lubridate::ymd("2020-01-01"))
+# }
+
+full_repos <- pb_list() %>% as_tibble()
+
+thosearethere <- full_repos %>% 
+  arrange(desc(tag)) %>% 
+  separate(tag, into = c("cntry", "timeframe"), remove = F, sep = "-") %>% 
+  mutate(day  = str_remove(file_name, "\\.rds|\\.zip")) %>% 
+  distinct(cntry, day, timeframe) %>% 
+  filter(str_detect(timeframe, time_preset))
+
+if(nrow(thosearethere)==0){
+  thosearethere <- tibble(timeframe = "", day = lubridate::ymd("2020-01-01"))
+}
+# thosearethere %>% write_rds("test.rds", compress = "xz")
+# thosearethere %>% saveRDS("test2.rds")
 
 dt %>%
   # arrange(day, country != "RU") %>%
   filter(country %in% cntries) %>%
   arrange(desc(day), country) %>%
+  anti_join(thosearethere) %>% 
   # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
-  filter(day >= (lubridate::ymd("2023-10-01"))) %>% 
+  filter(day >= (lubridate::ymd("2022-10-01"))) %>% 
   # slice(496:500) %>%
+  sample_n(100) %>% 
   split(1:nrow(.)) %>% #bashR::simule_map(1)
   walk_progress( ~ {
+    
+    
+
     # browser()
     file_name <-
-      glue::glue("report/{.x$country}/{as.character(.x$day)}.zip")
-    if (file_name %in% all_reports_old)
-      return()
+      glue::glue("report/{.x$country}/{as.character(.x$day)}-{time_preset}.zip")
+    # if (file_name %in% all_reports_old)
+    #   return()
     
     cli::cli_alert_info(glue::glue("{.x$country} - {.x$day}"))
     
@@ -332,20 +358,7 @@ dt %>%
   })
 
 
-print("NL DOWNLOADED")
 
-dir(paste0("report"), full.names = T, recursive = T) %>%
-  sort(decreasing = T) %>% 
-  # .[1:7] %>% 
-  walk_progress( ~ {
-    unzip(.x, exdir = "extracted")
-  })
-
-# unzip("report/TN/2023-11-28.zip", exdir = "extracted", overwrite = T)
-
-# unzip(dir(paste0("report/",cntry_str), full.names = T, recursive = T), exdir = "extracted")
-
-print("NL UNZIPPED")
 
 
 # latest_available_date <- dir("extracted") %>% 
@@ -363,68 +376,245 @@ print("NL UNZIPPED")
 # }
 
 
-print("NL DONE")
-
+print("NL DOWNLOADED")
 dir.create("reports")
 
 
-step1 <- dir("extracted", full.names = T, recursive = F) 
-print(head(step1))
-tobeextracted <- step1 %>% keep(~ str_detect(.x, "advert")) 
-print(head(tobeextracted))
+report_paths <- dir(paste0("report"), full.names = T, recursive = T) %>%
+  sort(decreasing = T)# %>% 
+  # .[200:202]
 
-the_dat <- tobeextracted %>%
-  map_dfr_progress(~ {
-    cntry_str <- str_split(.x, "_") %>% unlist %>% .[3]
-    tframe <- str_extract(.x, "last_7_days|last_30_days|yesterday|lifelong|last_90_days|lifelong")
-    
-    
-    
-    thedata <- vroom::vroom(.x, show_col_types = F) %>%
-      janitor::clean_names() %>%
-      mutate(date = str_extract(.x, "\\d{4}-\\d{2}-\\d{2}")) %>%
-      mutate_all(as.character) %>%
-      mutate(path = .x) %>%
-      mutate(tf = tframe) %>%
-      mutate(cntry = cntry_str)
-    
-    if (any(c("name_disclaimer_amount") %in% names(thedata))) {
-      print("##within1")
-      print(thedata)
-      thedata <- thedata %>%
-        filter(is.na(name_disclaimer_amount))  %>%
-        janitor::remove_empty()
-      print("##within2")
-      print(thedata)
-    } else {
-      # print("##after1")
-      # print(thedata)
-      thedata <- thedata
-      #   print("##after2")
-      # print(thedata)
-    }
-    
-    saver <- paste0("reports/", cntry_str, "/")
-    if(!dir.exists(saver)){
-      dir.create(saver, recursive = T)
-    }
-    # cntry_str
-    # print(saver)
-    
-    readr::write_rds(thedata, paste0(saver, tframe, ".rds"))
-    
-    
-    try({
-      thedata <- thedata %>%
-        bind_rows(readRDS(thedata, paste0(saver, tframe, ".rds"))) %>%
-        distinct()
-    })
 
-    thedata %>%
-      readr::write_rds(thedata, paste0(saver, tframe, ".rds"))
-    # 
-    # return(thedata)
-  })
+
+
+progress_bar <- function(current, total, bar_width = 50) {
+  # Calculate the percentage completed
+  percent_done <- round(current / total * 100)
+  
+  # Number of filled positions in the bar
+  filled_positions <- round(bar_width * percent_done / 100)
+  
+  # Create the progress bar string
+  bar <- paste0("[", 
+                strrep("=", filled_positions), 
+                ">", 
+                strrep(" ", bar_width - filled_positions), 
+                "] ", 
+                percent_done, "%")
+  
+  # Print the progress bar and use carriage return to stay on the same line
+  cat("\r", bar, sep = "")
+  flush.console()
+}
+
+
+# full_repos$tag %>% unique %>% 
+#   walk(~{pb_release_delete(tag= .x)})
+
+report_path <- report_paths[4]
+
+
+for (report_path in report_paths) {
+  
+  progress_bar(which(report_path==report_paths, report_paths), total = length(report_paths))
+  
+  unzip(report_path, exdir = "extracted")
+  
+  rawww <-  str_split(report_path, "/") %>% unlist 
+  
+  cntry_str <- rawww[2]
+  the_date <- str_remove(rawww[3], ".zip")   
+  
+   cntry_name <- full_cntry_list %>% 
+    filter(iso2c == cntry_str) %>% 
+    pull(country)
+  
+  extracted_path <- dir("extracted", full.names = T, recursive = F) %>% 
+    keep(~ str_detect(.x, "advert")) %>%
+    keep(~ str_detect(.x, cntry_str) & str_detect(.x, as.character(lubridate::ymd(the_date)-1)) & str_detect(.x, time_preset)) 
+  
+  if(length(extracted_path)==0){
+    print("no data")
+    next
+  }
+  
+  tframe <- str_extract(extracted_path, "yesterday|last_7_days|last_30_days|last_90_days|lifelong")
+  
+  thedata <- vroom::vroom(extracted_path, show_col_types = F) %>%
+    janitor::clean_names() %>%
+    mutate(date = str_extract(extracted_path, "\\d{4}-\\d{2}-\\d{2}")) %>%
+    mutate_all(as.character) %>%
+    mutate(path = extracted_path) %>%
+    mutate(tf = tframe) %>%
+    mutate(cntry = cntry_str)
+  
+  if (any(c("name_disclaimer_amount") %in% names(thedata))) {
+    print("##within1")
+    print(thedata)
+    thedata <- thedata %>%
+      filter(is.na(name_disclaimer_amount))  %>%
+      janitor::remove_empty()
+    print("##within2")
+    print(thedata)
+  }
+  
+  # print("helloo")
+  
+  thedata %>%
+    readr::write_rds(paste0(the_date, ".rds"), compress = "xz")
+  
+  forsur <- thedata %>% 
+    drop_na(date, tf)
+  
+  the_tag <- paste0(cntry_str, "-", tframe)
+  
+  # cntry_name
+  
+  if(!(the_tag %in% pb_releases()$release_name)){
+    pb_release_create(repo = "favstats/meta_ad_reports", tag = the_tag, body = paste0(paste0("This release includes ", cntry_name ," '", tframe ,"' Meta ad spending reports.")))
+    Sys.sleep(5)
+  }
+  
+  file.copy(report_path, paste0(the_date, ".zip"), overwrite = T)
+  
+  pb_upload(paste0(the_date, ".rds"), repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)
+  pb_upload(paste0(the_date, ".zip"), repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)
+  
+  file.remove(paste0(the_date, ".rds"))
+  file.remove(paste0(the_date, ".zip"))
+  
+  gc()
+  
+}
+  # # .[1:7] %>% 
+  # walk_progress( ~ {
+  # 
+  #   
+  # })
+
+# unzip("report/TN/2023-11-28.zip", exdir = "extracted", overwrite = T)
+
+# unzip(dir(paste0("report/",cntry_str), full.names = T, recursive = T), exdir = "extracted")
+
+print("NL UNZIPPED")
+
+
+
+# step1 <- dir("extracted", full.names = T, recursive = F) 
+# print(head(step1))
+# tobeextracted <- step1 %>% keep(~ str_detect(.x, "advert")) 
+# print(head(tobeextracted))
+# 
+# the_dat <- tobeextracted %>%
+#   .[20:22] %>%
+#   walk_progress(~ {
+#     cntry_str <- str_split(.x, "_") %>% unlist %>% .[3]
+#     tframe <- str_extract(.x, "yesterday|last_7_days|last_30_days|last_90_days|lifelong")
+#     
+#     
+#     
+#     thedata <- vroom::vroom(.x, show_col_types = F) %>%
+#       janitor::clean_names() %>%
+#       mutate(date = str_extract(.x, "\\d{4}-\\d{2}-\\d{2}")) %>%
+#       mutate_all(as.character) %>%
+#       mutate(path = .x) %>%
+#       mutate(tf = tframe) %>%
+#       mutate(cntry = cntry_str)
+#     
+#     if (any(c("name_disclaimer_amount") %in% names(thedata))) {
+#       print("##within1")
+#       print(thedata)
+#       thedata <- thedata %>%
+#         filter(is.na(name_disclaimer_amount))  %>%
+#         janitor::remove_empty()
+#       print("##within2")
+#       print(thedata)
+#     } else {
+#       # print("##after1")
+#       # print(thedata)
+#       thedata <- thedata
+#       #   print("##after2")ive = T)
+#     }
+#     # cntry_str
+#     # print(saver)
+#     
+#     # readr::write_rds(thedata, paste0(saver, tframe, ".rds"))
+#     
+#     # saver <- paste0("reports/", cntry_str, "/", tframe, "/")
+#     # if(!dir.exists(saver)){
+#     #   dir.create(saver, recursive = T)
+#     # }
+#     
+#     # try({
+#     #   thedata <- thedata %>%
+#     #     bind_rows(readr::read_rds(paste0(saver, tframe, ".rds"))) %>%
+#     #     distinct()
+#     # })
+#     print("helloo")
+# 
+#     thedata %>%
+#       readr::write_rds(paste0(cntry_str, ".rds"), compress = "xz")
+#     
+#     forsur <- thedata %>% 
+#       drop_na(date, tf)
+#     
+#     the_tag <- paste0(forsur$date[1], ".", str_extract(forsur$tf[1], "yesterday|7|30|90|lifelong"))
+#     
+#     if(!(the_tag %in% pb_releases()$release_name)){
+#       pb_release_create(repo = "favstats/meta_ad_reports", tag = the_tag)
+#       Sys.sleep(5)
+#     }
+#     
+#     pb_upload(paste0(cntry_str, ".rds"), repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)
+#     
+#     file.remove(paste0(cntry_str, ".rds"))
+#     
+#     # # 
+#     # # return(thedata)
+#     # 
+#     # lf <- lifelong %>% mutate(date = lubridate::ymd(date)) %>% arrange(date) %>%  distinct(page_id, page_name, disclaimer, amount_spent_usd, number_of_ads_in_library, cntry, .keep_all = T)
+# 
+#  
+#     
+#   })
+#       # print(thedata)
+    # }
+
+# pb_current()
+
+
+# dir("reports", full.names = T, recursive = T) %>% 
+#   keep(~str_detect(.x, "last_30")) %>% 
+#   # .[20] %>% 
+#   walk_progress(~{
+#     
+#     cntry_str <- str_split(.x, "/") %>% unlist %>% .[2]
+#     # print(.x)
+#     # print(cntry_str)
+#     # print(paste0("reports/", cntry_str, "/"))
+#     file.copy(.x, to = paste0(cntry_str, ".rds"))
+#     
+#     fin <- readRDS(paste0(cntry_str, ".rds"))
+#     
+#     the_tag <- paste0(fin$date[1], ".", str_extract(fin$tf[1], "7|30|yesterday|lifelong|90"))
+#     
+#     pb_release_create(repo = "favstats/meta_ad_reports", tag = the_tag)
+#     pb_upload(paste0(cntry_str, ".rds"), repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)
+#     
+#     file.remove(paste0(cntry_str, ".rds"))
+#   })
+
+
+# pb_download()
+
+# readr::write_rds(lifelong %>%  filter(date == min(date)), 
+#                  str_replace(saver, paste0(tframe, "/"), paste0(tframe, ".rds")), 
+#                  compress = "xz")
+
+# lf <- lifelong %>% mutate(date = lubridate::ymd(date)) %>% arrange(date) %>%  distinct(page_id, page_name, disclaimer, amount_spent_usd, number_of_ads_in_library, cntry, .keep_all = T)
+# 
+# readr::write_rds(lf %>%  filter(date == min(date)), "test.rds", compress = "xz")
+
 
 unlink("node_modules", recursive = T, force = T)
 unlink("out", recursive = T, force = T)
@@ -440,19 +630,19 @@ dir() %>%
 
 print("################9")
 
-all_reports <- dir("report", full.names = T, recursive = T)
+# all_reports <- dir("report", full.names = T, recursive = T)
 
 print("################10")
 
-all_reports <- all_reports_old %>% 
-  c(all_reports) %>% 
-  unique()
-print("################11")
-
-saveRDS(all_reports, file = paste0("logs/all_reports_", time_preset, ".rds"))
+# all_reports <- all_reports_old %>% 
+#   c(all_reports) %>% 
+#   unique()
+# print("################11")
+# 
+# saveRDS(all_reports, file = paste0("logs/all_reports_", time_preset, ".rds"))
 
 print("################12")
 
 unlink("report", recursive = T, force = T)
 unlink("extracted", recursive = T, force = T)
-# 
+
