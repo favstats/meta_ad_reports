@@ -7,7 +7,7 @@ options(python_init = TRUE)
 
 # cntry_str <- "NL"
 time_preset <- commandArgs(trailingOnly = TRUE)
-# time_preset <- "last_30_days"
+time_preset <- "lifelong"
 
 # install.packages("pacman")
 pacman::p_load(
@@ -83,7 +83,7 @@ cntries <- c("AD", "AE", "AG", "AI", "AL", "AM", "AO", "AR", "AT", "AU", "AZ", "
              "TW", "TZ", "UA", "UG", "US", "UY", "UZ", "VC", "VE", "VG", "VI", "VN",
              "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW", "XK", "TL") %>% unique
 
-
+cntries <- "US"
 
 # retrieve_dats <- function(cntry) {
 #   
@@ -411,17 +411,17 @@ the_dat <- tobeextracted %>%
     # cntry_str
     # print(saver)
     
-    saveRDS(thedata, paste0(saver, tframe, ".rds"))
+    readr::write_rds(thedata, paste0(saver, tframe, ".rds"))
     
     
-    # try({
-    #   thedata <- thedata %>%
-    #     bind_rows(readRDS(paste0("lifelong/",cntry_str, ".rds"))) %>%
-    #     distinct()   
-    # })
-    # 
-    # thedata %>%
-    #   saveRDS(paste0("lifelong/",cntry_str, ".rds"))
+    try({
+      thedata <- thedata %>%
+        bind_rows(readRDS(thedata, paste0(saver, tframe, ".rds"))) %>%
+        distinct()
+    })
+
+    thedata %>%
+      readr::write_rds(thedata, paste0(saver, tframe, ".rds"))
     # 
     # return(thedata)
   })
