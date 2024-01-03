@@ -274,7 +274,9 @@ thosearethere <- full_repos %>%
   mutate(day = lubridate::ymd(day))
 
 if(nrow(thosearethere)==0){
-  thosearethere <- tibble(timeframe = "", day = lubridate::ymd("2020-01-01"))
+  thosearethere <- tibble(timeframe = "", day = lubridate::ymd("2020-01-01"), country = "")
+} else {
+  print(glimpse(thosearethere))
 }
 # thosearethere %>% write_rds("test.rds", compress = "xz")
 # thosearethere %>% saveRDS("test2.rds")
@@ -296,7 +298,7 @@ dt %>%
   # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
   filter(day >= (lubridate::ymd("2022-10-01"))) %>% 
   # slice(496:500) %>%
-  sample_n(100) %>%
+  sample_n(10) %>%
   split(1:nrow(.)) %>% #bashR::simule_map(1)
   walk_progress( ~ {
     
@@ -395,8 +397,8 @@ tat_path <- thosearethere %>%
 
 report_paths <- dir(paste0("report"), full.names = T, recursive = T) %>%
   sort(decreasing = T) %>%
-  setdiff(tat_path$path) %>% 
-  keep(~str_detect(.x, "2024-01-01"))
+  setdiff(tat_path$path) #%>% 
+  # keep(~str_detect(.x, "2024-01-01"))
   # .[200:202]
 
 
@@ -495,11 +497,17 @@ for (report_path in report_paths) {
   
   file.copy(report_path, paste0(the_date, ".zip"), overwrite = T)
   
-  pb_upload(paste0(the_date, ".rds"), repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)
-  pb_upload(paste0(the_date, ".zip"), repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)
+  try({
+    print(paste0(the_date, ".rds"))
+    print(the_tag)
+    pb_upload(paste0(the_date, ".rds"), repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)
+    pb_upload(paste0(the_date, ".zip"), repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)
+    
+    file.remove(paste0(the_date, ".rds"))
+    file.remove(paste0(the_date, ".zip"))   
+  })
   
-  file.remove(paste0(the_date, ".rds"))
-  file.remove(paste0(the_date, ".zip"))
+
   
   gc()
   
