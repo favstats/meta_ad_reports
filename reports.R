@@ -518,7 +518,7 @@ for (report_path in report_paths) {
       filter(country == cntry_str)
     
     check_it <- lubridate::ymd(the_date) >= lat_dat$day
-    if(!is.null(check_it)){
+    if(length(check_it)!=0){
       if(check_it){
         file.rename(paste0(the_date, ".rds"), "latest.rds")
         
