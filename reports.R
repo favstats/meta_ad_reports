@@ -442,7 +442,7 @@ progress_bar <- function(current, total, bar_width = 50) {
 #   walk(~{pb_release_delete(tag= .x)})
 
 # report_path <- report_paths[1]
-
+release_names <- pb_releases()$release_name
 
 for (report_path in report_paths) {
   
@@ -507,7 +507,7 @@ for (report_path in report_paths) {
   
   # cntry_name
   
-  if(!(the_tag %in% pb_releases()$release_name)){
+  if(!(the_tag %in% release_names)){
     pb_release_create(repo = "favstats/meta_ad_reports", tag = the_tag, body = paste0(paste0("This release includes ", cntry_name ," '", tframe ,"' Meta ad spending reports.")))
     Sys.sleep(5)
   }
