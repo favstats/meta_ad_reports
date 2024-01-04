@@ -442,7 +442,8 @@ progress_bar <- function(current, total, bar_width = 50) {
 #   walk(~{pb_release_delete(tag= .x)})
 
 # report_path <- report_paths[1]
-release_names <- pb_releases()$release_name
+releases <- pb_releases()
+release_names <- releases$release_name
 
 for (report_path in report_paths) {
   
@@ -508,8 +509,10 @@ for (report_path in report_paths) {
   # cntry_name
   
   if(!(the_tag %in% release_names)){
-    pb_release_create(repo = "favstats/meta_ad_reports", tag = the_tag, body = paste0(paste0("This release includes ", cntry_name ," '", tframe ,"' Meta ad spending reports.")))
-    Sys.sleep(5)
+    pb_release_create_fr(repo = "favstats/meta_ad_reports", 
+                         tag = the_tag,
+                         body = paste0("This release includes ", cntry_name ," '", tframe ,"' Meta ad spending reports."), 
+                         releases = releases)    # Sys.sleep(5)
   }
   
   file.copy(report_path, paste0(the_date, ".zip"), overwrite = T)
@@ -518,8 +521,8 @@ for (report_path in report_paths) {
     print(paste0(the_date, ".rds"))
     print(the_tag)
     
-    pb_upload(paste0(the_date, ".rds"), repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)
-    pb_upload(paste0(the_date, ".zip"), repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)
+    pb_upload_file_fr(paste0(the_date, ".rds"), repo = "favstats/meta_ad_reports", tag = the_tag, releases = releases)
+    pb_upload_file_fr(paste0(the_date, ".zip"), repo = "favstats/meta_ad_reports", tag = the_tag, releases = releases)
     
     lat_dat <- latest_dat %>% 
       filter(country == cntry_str)
@@ -529,7 +532,7 @@ for (report_path in report_paths) {
       if(check_it){
         file.rename(paste0(the_date, ".rds"), "latest.rds")
         
-        pb_upload("latest.rds", repo = "favstats/meta_ad_reports", tag = the_tag, overwrite = T)     
+        pb_upload_file_fr("latest.rds", repo = "favstats/meta_ad_reports", tag = the_tag, releases = releases)     
         
         file.remove("latest.rds")
       }

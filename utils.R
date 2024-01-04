@@ -341,3 +341,66 @@ scale_color_parties <- function(...){
   )
 }
 
+
+pb_upload_file_fr <- function (file, repo, tag, .token = gh::gh_token(), releases, dir = NULL) {
+  # Construct the file path
+  file_path <- do.call(file.path, compact(list(dir, file)))
+  
+  # Check if the file exists
+  if (!file.exists(file_path)) {
+    stop("File does not exist: ", file_path)
+  }
+  
+  # Obtain release information
+  # releases <- pb_releases(repo = repo, .token = .token)
+  upload_url <- releases$upload_url[releases$tag_name == tag]
+  print(upload_url)
+  # Set up the request
+  rsd <<- httr::POST(
+    # "POST",
+    url = sub("\\{.+$", "", upload_url),
+    query = list(name = basename(file_path)),
+    httr::add_headers(Authorization = paste("token", .token)),
+    body = httr::upload_file(file_path)
+  )
+  
+  if(!is.null(httr::content(rsd)$errors[[1]]$code)){
+    return(NULL)
+  }
+  
+  # Handle response
+  httr::warn_for_status(rsd)
+  invisible(rsd)
+}
+
+
+
+pb_release_create_fr <- function (repo, tag, commit = NULL, name = tag, 
+                                  body = "Data release", draft = FALSE, prerelease = FALSE, releases,
+                                  .token = gh::gh_token()) {
+  if(is.null(releases)){
+    releases <- pb_releases(repo = repo, .token = .token, verbose = FALSE)
+    
+  }
+  if (nrow(releases) > 0 && tag %in% releases$tag_name) {
+    cli::cli_warn("Failed to create release: {.val {tag}} already exists!")
+    return(invisible(releases[tag %in% releases$tag_name, 
+    ]))
+  }
+  r <- piggyback:::parse_repo(repo)
+  payload <- compact(list(tag_name = tag, target_commitish = commit, 
+                          name = name, body = body, draft = draft, prerelease = prerelease))
+  resp <- httr::RETRY(verb = "POST", url = glue::glue("https://api.github.com/repos/{r[[1]]}/{r[[2]]}/releases"), 
+                      httr::add_headers(Authorization = paste("token", .token)), 
+                      body = jsonlite::toJSON(payload, auto_unbox = TRUE), 
+                      terminate_on = c(400, 401, 403, 404, 422))
+  if (httr::http_error(resp)) {
+    cli::cli_warn(c(`!` = "Failed to create release: HTTP error {.val {httr::status_code(resp)}}.", 
+                    "See returned error messages for more details"))
+    return(httr::content(resp))
+  }
+  piggyback:::.pb_cache_clear()
+  release <- httr::content(resp)
+  cli::cli_alert_success("Created new release {.val {name}}.")
+  return(invisible(release))
+}
