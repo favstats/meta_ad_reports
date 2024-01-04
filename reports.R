@@ -296,7 +296,8 @@ dt %>%
   arrange(desc(day), country) %>%
   anti_join(thosearethere) %>% 
   # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
-  filter(day >= (lubridate::ymd("2023-12-31"))) %>% 
+  filter(day >= (lubridate::ymd("2024-01-01"))) %>%  
+  # filter(day <= (lubridate::ymd("2024-01-01"))) %>% 
   slice(1:5000) %>%
   # sample_n(10) %>%
   split(1:nrow(.)) %>% #bashR::simule_map(1)
@@ -397,8 +398,9 @@ tat_path <- thosearethere %>%
 
 report_paths <- dir(paste0("report"), full.names = T, recursive = T) %>%
   sort(decreasing = T) %>%
-  setdiff(tat_path$path) #%>% 
-  # keep(~str_detect(.x, "2024-01-01"))
+  setdiff(tat_path$path)# %>% 
+  # keep(~str_detect(.x, "2024-01-01")) %>% 
+  # keep(~str_detect(.x, "last_7_days"))
   # .[200:202]
 
 latest_dat <- tat_path %>%
@@ -489,6 +491,11 @@ for (report_path in report_paths) {
   }
   
   # print("helloo")
+  
+  if(nrow(thedata)==0){
+    print("no data for some reason")
+    next
+  }
   
   thedata %>%
     readr::write_rds(paste0(the_date, ".rds"), compress = "xz")
