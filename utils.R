@@ -350,22 +350,65 @@ pb_upload_file_fr <- function (file, repo, tag, .token = gh::gh_token(), release
   if (!file.exists(file_path)) {
     stop("File does not exist: ", file_path)
   }
-  
+  # full_repos$file_name
   # Obtain release information
   # releases <- pb_releases(repo = repo, .token = .token)
-  upload_url <- releases$upload_url[releases$tag_name == tag]
-  print(upload_url)
+  upload_url <- releases$upload_url[releases$tag == tag][1]
+  # print(upload_url)
   # Set up the request
-  rsd <<- httr::POST(
+  rsd <- httr::POST(
     # "POST",
     url = sub("\\{.+$", "", upload_url),
     query = list(name = basename(file_path)),
     httr::add_headers(Authorization = paste("token", .token)),
     body = httr::upload_file(file_path)
   )
+
   
   if(!is.null(httr::content(rsd)$errors[[1]]$code)){
+    # tag <- "EE-last_7_days"
+    
+    df <- releases[releases$tag == tag,]
+    
+    if(basename(file_path)=="latest.rds"){
+      
+      # df <- piggyback:::pb_info(repo = repo, tag = tag, .token = .token)
+      i <- which(df$file_name == "latest.rds")
+      # if (length(i) > 0) {
+      # if (use_timestamps) {
+      #   local_timestamp <- fs::file_info(file_path)$modification_time
+      #   no_update <- local_timestamp <= df[i, "timestamp"]
+      #   if (no_update) {
+      #     cli::cli_warn("Matching or more recent version of {.file {file_path}} found on GH, not uploading.")
+      #     return(invisible(NULL))
+      #   }
+      # }
+      # if (overwrite) {
+      gh::gh("DELETE /repos/:owner/:repo/releases/assets/:id", 
+             owner = df$owner[[1]], repo = df$repo[[1]], 
+             id = df$id[i], .token = .token)
+      # }
+      # else {
+      #   cli::cli_warn("Skipping upload of {.file {df$file_name[i]}} as file exists on GitHub and {.code overwrite = FALSE}")
+      #   return(invisible(NULL))
+      # }
+      # }
+      rsd <- httr::POST(
+        # "POST",
+        url = sub("\\{.+$", "", upload_url),
+        query = list(name = basename(file_path)),
+        httr::add_headers(Authorization = paste("token", .token)),
+        body = httr::upload_file(file_path)
+      )
+      
+    } 
+      
+    httr::warn_for_status(rsd)
+    # invisible(rsd)
+    
     return(NULL)
+   
+  
   }
   
   # Handle response
@@ -380,11 +423,11 @@ pb_release_create_fr <- function (repo, tag, commit = NULL, name = tag,
                                   .token = gh::gh_token()) {
   if(is.null(releases)){
     releases <- pb_releases(repo = repo, .token = .token, verbose = FALSE)
-    
   }
-  if (nrow(releases) > 0 && tag %in% releases$tag_name) {
+  
+  if (nrow(releases) > 0 && tag %in% releases$tag) {
     cli::cli_warn("Failed to create release: {.val {tag}} already exists!")
-    return(invisible(releases[tag %in% releases$tag_name, 
+    return(invisible(releases[tag %in% releases$tag, 
     ]))
   }
   r <- piggyback:::parse_repo(repo)

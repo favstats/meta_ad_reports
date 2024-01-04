@@ -71,35 +71,6 @@ full_cntry_list <- readRDS("cntry_list.rds") %>%
 
 cntries <- full_cntry_list$iso2c
 
-# cntries <- "US"
-
-# retrieve_dats <- function(cntry) {
-#   
-#   more_data <- readr::read_rds(glue::glue("https://github.com/favstats/meta_reports2/raw/main/lifelong/{cntry}.rds"))  
-#   
-#   return(more_data)
-# }
-# 
-# #retrieve_dats <- possibly(retrieve_dats, otherwise = NULL)
-# 
-# #more_data <- cntries %>% 
-# #  map_dfr_progress(retrieve_dats)
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# old_dat <- dir("daily", full.names = F) %>% 
-#   keep(~str_detect(.x, "rds")) %>%
-#   str_remove_all("\\.rds") %>%
-#   unique()
-
-
 print("headlesss")
 # Create a new page
 
@@ -263,7 +234,7 @@ library(tidyverse)
 #   thosearethere <- thosearethere %>% mutate(cntry = NA, day = lubridate::ymd("2020-01-01"))
 # }
 
-full_repos <- pb_list() %>% as_tibble()
+full_repos <- piggyback:::pb_info("favstats/meta_ad_reports") %>% as_tibble()
 
 thosearethere <- full_repos %>% 
   arrange(desc(tag)) %>% 
@@ -362,7 +333,7 @@ dt %>%
       # try({
         res <- download_it_now(download_url, file_name)       
       # })
-      if(is.null(res$error)) return("Waitlisted")
+      if(!is.null(res$error)) return("Waitlisted")
         
     }
     
@@ -442,8 +413,8 @@ progress_bar <- function(current, total, bar_width = 50) {
 #   walk(~{pb_release_delete(tag= .x)})
 
 # report_path <- report_paths[1]
-releases <- pb_releases()
-release_names <- releases$release_name
+# releases <- pb_releases()
+release_names <- full_repos$tag %>% unique
 
 for (report_path in report_paths) {
   
