@@ -29,6 +29,7 @@ full_repos <- read_rds("https://github.com/favstats/meta_ad_reports/releases/dow
 
 full_repos %>%
   filter(tag != "ReleaseInfo") %>% 
+  drop_na(owner) %>% 
   separate(tag, into = c("cntry", "tframe"), remove = F, sep = "-") %>% 
   add_count(cntry, tframe, sort  =T) %>% 
   # add_count(file_name, sort = T) %>% 
