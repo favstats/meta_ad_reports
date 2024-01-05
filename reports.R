@@ -33,6 +33,10 @@ pacman::p_load(
 )
 
 
+if(!("playwrightr" %in% tibble::as_tibble(installed.packages())$Package)){
+  remotes::install_github("benjaminguinaudeau/playwrightr")
+}
+
 # options(googledrive_quiet = TRUE)
 # 
 # drive_auth(path = Sys.getenv("GOOGLE_APPLICATION_KEY"))

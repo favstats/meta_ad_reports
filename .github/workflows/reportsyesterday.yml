@@ -76,10 +76,6 @@ jobs:
       - name: "Check Playwright CLI"
         run: npx playwright --version
 
-      - name: "Install Packages"
-        run: |
-          remotes::install_github("benjaminguinaudeau/playwrightr", force = T)
-        shell: Rscript {0}
       - name: Pull Latest Changes
         run: git pull origin main
       - name: "Script - Meta Run"
