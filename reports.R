@@ -45,8 +45,11 @@ if(!("playwrightr" %in% tibble::as_tibble(installed.packages())$Package)){
 
 # Call the function to perform the operation
 full_repos <- get_full_release()
+saveRDS(full_repos, "full_repos.rds")
+Sys.sleep(1)
 pb_upload_file_fr("full_repos.rds", repo = "favstats/meta_ad_reports", tag = "ReleaseInfo", releases = full_repos)
-
+Sys.sleep(1)
+file.remove("full_repos.rds")
 # options(googledrive_quiet = TRUE)
 # 
 # drive_auth(path = Sys.getenv("GOOGLE_APPLICATION_KEY"))
