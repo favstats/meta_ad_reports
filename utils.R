@@ -364,6 +364,29 @@ pb_upload_file_fr <- function (file, repo, tag, .token = gh::gh_token(), release
     body = httr::upload_file(file_path)
   )
 
+  iso_to_emoji_unicode = function(iso_codes)
+  {
+    # check input
+    if (!any(
+      nchar(iso_codes) == 2 |
+      is.na(iso_codes)))
+    {
+      stop('iso_to_emoji: ISO codes must be two (2) letters long.')
+    }
+    if (!any(
+      str_detect(iso_codes, pattern = '[a-zA-Z][a-zA-Z]') |
+      is.na(iso_codes)))
+    {
+      stop('iso_to_emoji: ISO codes must be letters only.')
+    }
+    
+    # substitute unicode regional indicator symbols for the original characters
+    return(str_replace_all(str_to_lower(iso_codes), c('a' = '🇦', 'b' = '🇧', 'c' = '🇨',
+                                                      'd' = '🇩', 'e' = '🇪', 'f' = '🇫', 'g' = '🇬', 'h' = '🇭', 'i' = '🇮',
+                                                      'j' = '🇯', 'k' = '🇰', 'l' = '🇱', 'm' = '🇲', 'n' = '🇳', 'o' = '🇴',
+                                                      'p' = '🇵', 'q' = '🇶', 'r' = '🇷', 's' = '🇸', 't' = '🇹', 'u' = '🇺',
+                                                      'v' = '🇻', 'w' = '🇼', 'x' = '🇽', 'y' = '🇾', 'z' = '🇿')))
+  }
   
   if(!is.null(httr::content(rsd)$errors[[1]]$code)){
     # tag <- "EE-last_7_days"
@@ -446,6 +469,50 @@ pb_release_create_fr <- function (repo, tag, commit = NULL, name = tag,
   release <- httr::content(resp)
   cli::cli_alert_success("Created new release {.val {name}}.")
   return(invisible(release))
+}
+
+# Define a function to perform the operation
+get_full_release <- function() {
+  tryCatch({
+    # Your original operation
+    full_repos <- piggyback:::pb_info("favstats/meta_ad_reports") %>% as_tibble()
+    
+    return(full_repos)  # return the result
+  }, error = function(e) {
+    # Print the error message
+    print(paste("Error occurred: ", e$message))
+    
+    # Wait for an hour (3600 seconds)
+    print("Waiting for 1 hour before retrying...")
+    Sys.sleep(3600)
+    
+    # Retry the operation
+    return(get_full_release())
+  })
+}
+
+
+iso_to_emoji_unicode <- function(iso_codes){
+  # check input
+  if (!any(
+    nchar(iso_codes) == 2 |
+    is.na(iso_codes)))
+  {
+    stop('iso_to_emoji: ISO codes must be two (2) letters long.')
+  }
+  if (!any(
+    str_detect(iso_codes, pattern = '[a-zA-Z][a-zA-Z]') |
+    is.na(iso_codes)))
+  {
+    stop('iso_to_emoji: ISO codes must be letters only.')
+  }
+  
+  # substitute unicode regional indicator symbols for the original characters
+  return(str_replace_all(str_to_lower(iso_codes), c('a' = '\ud83c\udde6', 'b' = '\ud83c\udde7', 'c' = '\ud83c\udde8',
+                                                    'd' = '\ud83c\udde9', 'e' = '\ud83c\uddea', 'f' = '\ud83c\uddeb', 'g' = '\ud83c\uddec', 'h' = '\ud83c\udded', 'i' = '\ud83c\uddee',
+                                                    'j' = '\ud83c\uddef', 'k' = '\ud83c\uddf0', 'l' = '\ud83c\uddf1', 'm' = '\ud83c\uddf2', 'n' = '\ud83c\uddf3', 'o' = '\ud83c\uddf4',
+                                                    'p' = '\ud83c\uddf5', 'q' = '\ud83c\uddf6', 'r' = '\ud83c\uddf7', 's' = '\ud83c\uddf8', 't' = '\ud83c\uddf9', 'u' = '\ud83c\uddfa',
+                                                    'v' = '\ud83c\uddfb', 'w' = '\ud83c\uddfc', 'x' = '\ud83c\uddfd', 'y' = '\ud83c\uddfe', 'z' = '\ud83c\uddff')))
 }
 
 
