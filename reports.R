@@ -173,7 +173,7 @@ data_string <- readLines(tmp_post_data_string, warn = F) %>%
   str_squish() %>%
   glimpse
 
-
+# full_cntry_list$iso2c
 # countries <- tibble::tibble(country = c("NL", "DE", "CA", "FR", "US"))
 countries <-
   tibble::tibble(country = countrycode::codelist$iso2c) %>%
@@ -265,13 +265,23 @@ download_it <- function(download_url, file_name) {
 
 download_it_now <- safely(download_it, quiet = F)
 
-dt %>%
+rawlings <- dt %>%
   # arrange(day, country != "RU") %>%
   filter(country %in% cntries) %>%
   arrange(desc(day), country) %>%
-  anti_join(thosearethere) %>% 
+  anti_join(thosearethere)
+
+thoseneedtobehere <- rawlings %>% 
   # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
-  filter(day >= (lubridate::ymd("2024-01-01"))) %>%  
+  filter(day >= (lubridate::ymd("2024-01-01"))) 
+
+nicetohave <- rawlings %>% 
+  # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
+  filter(day >= (lubridate::ymd("2020-01-01"))) %>% 
+  sample_n(1000)
+
+thoseneedtobehere %>% 
+  bind_rows(nicetohave) %>% 
   # filter(day <= (lubridate::ymd("2024-01-01"))) %>% 
   slice(1:5000) %>%
   # sample_n(10) %>%
@@ -475,9 +485,6 @@ for (report_path in report_paths) {
   
   thedata %>%
     readr::write_rds(paste0(the_date, ".rds"), compress = "xz")
-  
-  forsur <- thedata %>% 
-    drop_na(date, tf)
   
   the_tag <- paste0(cntry_str, "-", tframe)
   
