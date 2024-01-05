@@ -268,11 +268,18 @@ download_it <- function(download_url, file_name) {
 
 download_it_now <- safely(download_it, quiet = F)
 
+if(file.exists("blacklist.csv")) {
+  blacklist <- read_csv("blacklist.csv")
+} else {
+  blacklist <- tibble(country = "", day = lubridate::ymd("2020-01-01"))
+}
+
 rawlings <- dt %>%
   # arrange(day, country != "RU") %>%
   filter(country %in% cntries) %>%
   arrange(desc(day), country) %>%
-  anti_join(thosearethere)
+  anti_join(thosearethere) %>%
+  anti_join(blacklist)
 
 thoseneedtobehere <- rawlings %>% 
   # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
@@ -280,8 +287,11 @@ thoseneedtobehere <- rawlings %>%
 
 nicetohave <- rawlings %>% 
   # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
-  filter(day >= (lubridate::ymd("2020-01-01"))) %>% 
-  sample_n(1000)
+  filter(day >= (lubridate::ymd("2022-01-01"))) %>%
+  arrange(desc(day), country) %>% 
+  slice(1:1000)
+
+
 
 thoseneedtobehere %>% 
   bind_rows(nicetohave) %>% 
@@ -342,6 +352,7 @@ thoseneedtobehere %>%
       ))) {
         write(list(), file_name)
       }
+      save_csv(.x, path = "blacklist.csv")
     } else if (str_detect(download_url, "facebook.com/help/contact/")) {
       cli::cli_alert_danger("Blocked")
       Sys.sleep(10)

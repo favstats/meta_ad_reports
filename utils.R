@@ -447,3 +447,6 @@ pb_release_create_fr <- function (repo, tag, commit = NULL, name = tag,
   cli::cli_alert_success("Created new release {.val {name}}.")
   return(invisible(release))
 }
+
+
+source("https://raw.githubusercontent.com/favstats/appendornot/master/R/save.R")

@@ -84,8 +84,3 @@ jobs:
       - name: "Script - Meta Run"
         run: Rscript 'reports.R' "last_30_days"
 
-
-      - name: "Commit"
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Retrieve Google Reports
