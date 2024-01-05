@@ -1,3 +1,6 @@
+unlink("node_modules", recursive = T, force = T)
+unlink("out", recursive = T, force = T)
+
 library(playwrightr)
 # library(tidyverse)
 options(timeout=300)
