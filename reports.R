@@ -11,7 +11,7 @@ options(python_init = TRUE)
 
 # cntry_str <- "NL"
 time_preset <- commandArgs(trailingOnly = TRUE)
-# time_preset <- "last_7_days"
+# time_preset <- "lifelong"
 
 # install.packages("pacman")
 pacman::p_load(
@@ -39,6 +39,13 @@ pacman::p_load(
 if(!("playwrightr" %in% tibble::as_tibble(installed.packages())$Package)){
   remotes::install_github("benjaminguinaudeau/playwrightr")
 }
+
+
+
+
+# Call the function to perform the operation
+full_repos <- get_full_release()
+pb_upload_file_fr("full_repos.rds", repo = "favstats/meta_ad_reports", tag = "ReleaseInfo", releases = full_repos)
 
 # options(googledrive_quiet = TRUE)
 # 
@@ -241,27 +248,7 @@ library(tidyverse)
 #   thosearethere <- thosearethere %>% mutate(cntry = NA, day = lubridate::ymd("2020-01-01"))
 # }
 
-# Define a function to perform the operation
-get_full_release <- function() {
-  tryCatch({
-    # Your original operation
-    full_repos <- piggyback::pb_info("favstats/meta_ad_reports") %>% as_tibble()
-    return(full_repos)  # return the result
-  }, error = function(e) {
-    # Print the error message
-    print(paste("Error occurred: ", e$message))
-    
-    # Wait for an hour (3600 seconds)
-    print("Waiting for 1 hour before retrying...")
-    Sys.sleep(3600)
-    
-    # Retry the operation
-    return(get_full_release())
-  })
-}
 
-# Call the function to perform the operation
-full_repos <- get_full_release()
 
 thosearethere <- full_repos %>% 
   arrange(desc(tag)) %>% 

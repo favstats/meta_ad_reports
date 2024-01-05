@@ -1,0 +1,55 @@
+---
+output: github_document
+---
+
+# Overview of Meta Ad Reports
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE, message=FALSE, warning=F, echo=F}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+
+source("utils.R")
+
+library(tidyverse)
+```
+
+
+
+```{r example, message=FALSE, warning=F, echo=F}
+
+
+full_repos <- read_rds("https://github.com/favstats/meta_ad_reports/releases/download/ReleaseInfo/full_repos.rds")
+
+
+full_repos %>%
+  filter(tag != "ReleaseInfo") %>% 
+  separate(tag, into = c("cntry", "tframe"), remove = F, sep = "-") %>% 
+  add_count(cntry, tframe, sort  =T) %>% 
+  # add_count(file_name, sort = T) %>% 
+  filter(file_name != "latest.rds")%>% 
+  mutate(the_day = str_remove(file_name, "\\.rds|\\.zip") %>% lubridate::ymd()) %>% 
+  arrange(desc(the_day)) %>% 
+  # drop_na(the_day) %>% 
+  distinct(cntry, tframe, .keep_all = T) %>%
+  # count(tframe)
+  select(cntry, tframe, the_day) %>% 
+  # arrange(cntry) %>% 
+  mutate(the_day = as.character(the_day)) %>% 
+  pivot_wider(names_from = tframe, values_from = the_day)  %>%
+  # left_join(jis %>% )
+  mutate(emoji = iso_to_emoji_unicode(cntry)) %>% 
+  mutate(country_name = countrycode::countrycode(cntry, "iso2c", "country.name")) %>% 
+  mutate(country = paste0(emoji, "  ", country_name)) %>% 
+  select(country, yesterday, last_7_days, last_30_days, last_90_days, lifelong) %>% 
+  # mutate_at(vars("last_7_days", "last_30_days", "last_90_days", "lifelong", "yesterday"),
+  #           ~ifelse(!is.na(.x), paste0(.x,"✅"), .x)) %>% 
+  mutate_all(~ifelse(is.na(.x), "❌", .x)) %>% 
+  arrange(country) %>% 
+  knitr::kable()
+```
