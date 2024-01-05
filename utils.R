@@ -341,6 +341,29 @@ scale_color_parties <- function(...){
   )
 }
 
+iso_to_emoji_unicode = function(iso_codes){
+  # check input
+  if (!any(
+    nchar(iso_codes) == 2 |
+    is.na(iso_codes)))
+  {
+    stop('iso_to_emoji: ISO codes must be two (2) letters long.')
+  }
+  if (!any(
+    str_detect(iso_codes, pattern = '[a-zA-Z][a-zA-Z]') |
+    is.na(iso_codes)))
+  {
+    stop('iso_to_emoji: ISO codes must be letters only.')
+  }
+  
+  # substitute unicode regional indicator symbols for the original characters
+  return(str_replace_all(str_to_lower(iso_codes), c('a' = '🇦', 'b' = '🇧', 'c' = '🇨',
+                                                    'd' = '🇩', 'e' = '🇪', 'f' = '🇫', 'g' = '🇬', 'h' = '🇭', 'i' = '🇮',
+                                                    'j' = '🇯', 'k' = '🇰', 'l' = '🇱', 'm' = '🇲', 'n' = '🇳', 'o' = '🇴',
+                                                    'p' = '🇵', 'q' = '🇶', 'r' = '🇷', 's' = '🇸', 't' = '🇹', 'u' = '🇺',
+                                                    'v' = '🇻', 'w' = '🇼', 'x' = '🇽', 'y' = '🇾', 'z' = '🇿')))
+}
+
 
 pb_upload_file_fr <- function (file, repo, tag, .token = gh::gh_token(), releases, dir = NULL) {
   # Construct the file path
@@ -355,6 +378,10 @@ pb_upload_file_fr <- function (file, repo, tag, .token = gh::gh_token(), release
   # releases <- pb_releases(repo = repo, .token = .token)
   upload_url <- releases$upload_url[releases$tag == tag][1]
   # print(upload_url)
+  
+  if(is.na(upload_url)){
+    return(NULL)
+  }
   # Set up the request
   rsd <- httr::POST(
     # "POST",
@@ -364,29 +391,7 @@ pb_upload_file_fr <- function (file, repo, tag, .token = gh::gh_token(), release
     body = httr::upload_file(file_path)
   )
 
-  iso_to_emoji_unicode = function(iso_codes)
-  {
-    # check input
-    if (!any(
-      nchar(iso_codes) == 2 |
-      is.na(iso_codes)))
-    {
-      stop('iso_to_emoji: ISO codes must be two (2) letters long.')
-    }
-    if (!any(
-      str_detect(iso_codes, pattern = '[a-zA-Z][a-zA-Z]') |
-      is.na(iso_codes)))
-    {
-      stop('iso_to_emoji: ISO codes must be letters only.')
-    }
-    
-    # substitute unicode regional indicator symbols for the original characters
-    return(str_replace_all(str_to_lower(iso_codes), c('a' = '🇦', 'b' = '🇧', 'c' = '🇨',
-                                                      'd' = '🇩', 'e' = '🇪', 'f' = '🇫', 'g' = '🇬', 'h' = '🇭', 'i' = '🇮',
-                                                      'j' = '🇯', 'k' = '🇰', 'l' = '🇱', 'm' = '🇲', 'n' = '🇳', 'o' = '🇴',
-                                                      'p' = '🇵', 'q' = '🇶', 'r' = '🇷', 's' = '🇸', 't' = '🇹', 'u' = '🇺',
-                                                      'v' = '🇻', 'w' = '🇼', 'x' = '🇽', 'y' = '🇾', 'z' = '🇿')))
-  }
+  r <- piggyback:::parse_repo(repo)
   
   if(!is.null(httr::content(rsd)$errors[[1]]$code)){
     # tag <- "EE-last_7_days"
@@ -408,7 +413,7 @@ pb_upload_file_fr <- function (file, repo, tag, .token = gh::gh_token(), release
       # }
       # if (overwrite) {
       gh::gh("DELETE /repos/:owner/:repo/releases/assets/:id", 
-             owner = df$owner[[1]], repo = df$repo[[1]], 
+             owner = r[1], repo = r[2], 
              id = df$id[i], .token = .token)
       # }
       # else {
@@ -424,7 +429,9 @@ pb_upload_file_fr <- function (file, repo, tag, .token = gh::gh_token(), release
         body = httr::upload_file(file_path)
       )
       
-    } 
+    } else {
+      print("already there so we skip")
+    }
       
     httr::warn_for_status(rsd)
     # invisible(rsd)
@@ -463,6 +470,7 @@ pb_release_create_fr <- function (repo, tag, commit = NULL, name = tag,
   if (httr::http_error(resp)) {
     cli::cli_warn(c(`!` = "Failed to create release: HTTP error {.val {httr::status_code(resp)}}.", 
                     "See returned error messages for more details"))
+    # httr::content(resp)$errors[[1]]$code=="already_exists"
     return(httr::content(resp))
   }
   piggyback:::.pb_cache_clear()
@@ -471,11 +479,63 @@ pb_release_create_fr <- function (repo, tag, commit = NULL, name = tag,
   return(invisible(release))
 }
 
+
+
+
+pb_info_fr <- function(repo = guess_repo(),
+                       tag = NULL,
+                       .token = gh::gh_token()) {
+  
+  r <- piggyback:::parse_repo(repo)
+  
+  # get all releases
+  releases <- piggyback::pb_releases(repo = repo, .token = .token, verbose = FALSE)
+  
+  # if no releases return empty df
+  if(nrow(releases) == 0) {
+    return(
+      data.frame(
+        file_name = "",
+        size = 0L,
+        timestamp = .as_datetime(0),
+        tag = "",
+        owner = r[[1]],
+        repo = r[[2]],
+        upload_url = "",
+        browser_download_url = "",
+        api_download_url = "",
+        id = "",
+        state = "",
+        stringsAsFactors = FALSE
+      ))
+  }
+  
+  # if tag is "latest" (and no tag is literally named "latest"), set tag to
+  # GitHub's idea of latest release tag
+  if(identical(tag, "latest") && !"latest" %in% releases$tag_name) {
+    tag <- releases$tag_name[releases$latest]
+  }
+  
+  # if tag is present, filter the releases to search to just the tags requested
+  if(!is.null(tag)) releases <- releases[releases$tag_name %in% tag,]
+  
+  # get release assets and metadata for each release
+  info <- piggyback:::get_release_assets(releases = releases, r = r, .token = .token)  %>% 
+    bind_rows(releases %>% 
+                select(tag = release_name,
+                       id = release_id,
+                       upload_url)) %>% 
+    distinct(tag, id, upload_url, .keep_all = T)
+  
+  return(info)
+}
+
+
 # Define a function to perform the operation
 get_full_release <- function() {
   tryCatch({
     # Your original operation
-    full_repos <- piggyback:::pb_info("favstats/meta_ad_reports") %>% as_tibble()
+    full_repos <- pb_info_fr("favstats/meta_ad_reports") %>% as_tibble()
     
     return(full_repos)  # return the result
   }, error = function(e) {
@@ -491,29 +551,6 @@ get_full_release <- function() {
   })
 }
 
-
-iso_to_emoji_unicode <- function(iso_codes){
-  # check input
-  if (!any(
-    nchar(iso_codes) == 2 |
-    is.na(iso_codes)))
-  {
-    stop('iso_to_emoji: ISO codes must be two (2) letters long.')
-  }
-  if (!any(
-    str_detect(iso_codes, pattern = '[a-zA-Z][a-zA-Z]') |
-    is.na(iso_codes)))
-  {
-    stop('iso_to_emoji: ISO codes must be letters only.')
-  }
-  
-  # substitute unicode regional indicator symbols for the original characters
-  return(str_replace_all(str_to_lower(iso_codes), c('a' = '\ud83c\udde6', 'b' = '\ud83c\udde7', 'c' = '\ud83c\udde8',
-                                                    'd' = '\ud83c\udde9', 'e' = '\ud83c\uddea', 'f' = '\ud83c\uddeb', 'g' = '\ud83c\uddec', 'h' = '\ud83c\udded', 'i' = '\ud83c\uddee',
-                                                    'j' = '\ud83c\uddef', 'k' = '\ud83c\uddf0', 'l' = '\ud83c\uddf1', 'm' = '\ud83c\uddf2', 'n' = '\ud83c\uddf3', 'o' = '\ud83c\uddf4',
-                                                    'p' = '\ud83c\uddf5', 'q' = '\ud83c\uddf6', 'r' = '\ud83c\uddf7', 's' = '\ud83c\uddf8', 't' = '\ud83c\uddf9', 'u' = '\ud83c\uddfa',
-                                                    'v' = '\ud83c\uddfb', 'w' = '\ud83c\uddfc', 'x' = '\ud83c\uddfd', 'y' = '\ud83c\uddfe', 'z' = '\ud83c\uddff')))
-}
 
 
 source("https://raw.githubusercontent.com/favstats/appendornot/master/R/save.R")

@@ -42,14 +42,13 @@ if(!("playwrightr" %in% tibble::as_tibble(installed.packages())$Package)){
 
 
 
-
 # Call the function to perform the operation
 full_repos <- get_full_release()
-# saveRDS(full_repos, "full_repos.rds")
-# Sys.sleep(1)
-# pb_upload_file_fr("full_repos.rds", repo = "favstats/meta_ad_reports", tag = "ReleaseInfo", releases = full_repos)
-# Sys.sleep(1)
-# file.remove("full_repos.rds")
+saveRDS(full_repos, "full_repos.rds")
+Sys.sleep(1)
+pb_upload_file_fr("full_repos.rds", repo = "favstats/meta_ad_reports", tag = "ReleaseInfo", releases = full_repos)
+Sys.sleep(1)
+file.remove("full_repos.rds")
 # options(googledrive_quiet = TRUE)
 # 
 # drive_auth(path = Sys.getenv("GOOGLE_APPLICATION_KEY"))
@@ -299,7 +298,7 @@ nicetohave <- rawlings %>%
   # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
   filter(day >= (lubridate::ymd("2022-01-01"))) %>%
   arrange(desc(day), country) %>% 
-  slice(1:1000)
+  slice(1:10)
 
 
 
@@ -403,11 +402,13 @@ print("NL DOWNLOADED")
 dir.create("reports")
 
 tat_path <- thosearethere %>% 
-  mutate(path = paste0("report/", country, "/", day, "-", timeframe, ".zip"))
+  mutate(path = paste0("report/", country, "/", day, "-", timeframe, ".zip")) %>% 
+  drop_na(day)
 
 report_paths <- dir(paste0("report"), full.names = T, recursive = T) %>%
   sort(decreasing = T) %>%
-  setdiff(tat_path$path)# %>% 
+  setdiff(tat_path$path) %>%
+  sort()
   # keep(~str_detect(.x, "2024-01-01")) %>% 
   # keep(~str_detect(.x, "last_7_days"))
   # .[200:202]
@@ -450,12 +451,14 @@ progress_bar <- function(current, total, bar_width = 50) {
 # full_repos$tag %>% unique %>% 
 #   walk(~{pb_release_delete(tag= .x)})
 
-# report_path <- report_paths[1]
+# report_path <- report_paths[3]
+# report_path <- report_paths[str_detect(report_paths, "OM")][1]
+
 # releases <- pb_releases()
 release_names <- full_repos$tag %>% unique
 
 for (report_path in report_paths) {
-  
+  print(report_path)
   progress_bar(which(report_path==report_paths, report_paths), total = length(report_paths))
   
   unzip(report_path, exdir = "extracted")
@@ -524,20 +527,26 @@ for (report_path in report_paths) {
   file.copy(report_path, paste0(the_date, ".zip"), overwrite = T)
   
   try({
-    print(paste0(the_date, ".rds"))
-    print(the_tag)
-    
+    # print(paste0(the_date, ".rds"))
+    # print(the_tag)
+    # debugonce(pb_upload_file_fr)
+    # debugonce(pb_upload_file_fr)
     pb_upload_file_fr(paste0(the_date, ".rds"), repo = "favstats/meta_ad_reports", tag = the_tag, releases = full_repos)
     pb_upload_file_fr(paste0(the_date, ".zip"), repo = "favstats/meta_ad_reports", tag = the_tag, releases = full_repos)
     
     lat_dat <- latest_dat %>% 
       filter(country == cntry_str)
     
-    check_it <- lubridate::ymd(the_date) >= lat_dat$day
+    if(nrow(lat_dat) == 0){
+      check_it <- T
+    } else {
+      check_it <- (lubridate::ymd(the_date) >= lat_dat$day) 
+    }
+    
     if(length(check_it)!=0){
       if(check_it){
         file.rename(paste0(the_date, ".rds"), "latest.rds")
-        
+        # debugonce(pb_upload_file_fr)
         pb_upload_file_fr("latest.rds", repo = "favstats/meta_ad_reports", tag = the_tag, releases = full_repos)     
         
         file.remove("latest.rds")
