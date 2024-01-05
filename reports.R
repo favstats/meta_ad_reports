@@ -241,7 +241,27 @@ library(tidyverse)
 #   thosearethere <- thosearethere %>% mutate(cntry = NA, day = lubridate::ymd("2020-01-01"))
 # }
 
-full_repos <- piggyback:::pb_info("favstats/meta_ad_reports") %>% as_tibble()
+# Define a function to perform the operation
+get_full_release <- function() {
+  tryCatch({
+    # Your original operation
+    full_repos <- piggyback::pb_info("favstats/meta_ad_reports") %>% as_tibble()
+    return(full_repos)  # return the result
+  }, error = function(e) {
+    # Print the error message
+    print(paste("Error occurred: ", e$message))
+    
+    # Wait for an hour (3600 seconds)
+    print("Waiting for 1 hour before retrying...")
+    Sys.sleep(3600)
+    
+    # Retry the operation
+    return(get_full_release())
+  })
+}
+
+# Call the function to perform the operation
+full_repos <- get_full_release()
 
 thosearethere <- full_repos %>% 
   arrange(desc(tag)) %>% 
