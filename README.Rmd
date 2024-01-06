@@ -24,13 +24,7 @@ library(tidyverse)
 ```{r example, message=FALSE, warning=F, echo=F}
 
 
-
-full_repos <- get_full_release()
-saveRDS(full_repos, "full_repos.rds")
-Sys.sleep(1)
-pb_upload_file_fr("full_repos.rds", repo = "favstats/meta_ad_reports", tag = "ReleaseInfo", releases = full_repos)
-Sys.sleep(1)
-file.remove("full_repos.rds")
+full_repos <- read_rds("https://github.com/favstats/meta_ad_reports/releases/download/ReleaseInfo/full_repos.rds")
 
 
 full_repos %>%
