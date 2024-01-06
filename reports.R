@@ -46,6 +46,9 @@ if(!("playwrightr" %in% tibble::as_tibble(installed.packages())$Package)){
 # Call the function to perform the operation
 full_repos <- read_rds("https://github.com/favstats/meta_ad_reports/releases/download/ReleaseInfo/full_repos.rds")
 
+
+
+
 # options(googledrive_quiet = TRUE)
 # 
 # drive_auth(path = Sys.getenv("GOOGLE_APPLICATION_KEY"))
@@ -76,13 +79,41 @@ browser_df <- browser_launch(
 
 
 
-
 full_cntry_list <- readRDS("cntry_list.rds") %>% 
   rename(iso2c = iso2,
          country = cntry) 
 
 
 cntries <- full_cntry_list$iso2c
+
+out <- cntries %>% 
+  map(~{
+    .x %>% 
+      paste0(c("-yesterday", "-last_7_days", "-last_30_days", 
+               "-last_90_days", "-lifelong"))
+  }) %>% 
+  unlist() %>% 
+  # .[100:120] %>% 
+  map_dfr_progress(~{
+    the_assets <- httr::GET(paste0("https://github.com/favstats/meta_ad_reports/releases/expanded_assets/", .x))
+    
+    the_assets %>% httr::content() %>% 
+      html_elements(".Box-row") %>% 
+      html_text()  %>%
+      tibble(raw = .)   %>%
+      # Split the raw column into separate lines
+      mutate(raw = strsplit(as.character(raw), "\n")) %>%
+      # Extract the relevant lines for filename, file size, and timestamp
+      transmute(
+        filename = sapply(raw, function(x) trimws(x[3])),
+        file_size = sapply(raw, function(x) trimws(x[6])),
+        timestamp = sapply(raw, function(x) trimws(x[7]))
+      ) %>% 
+      filter(filename != "Source code") %>% 
+      mutate(release = .x) %>% 
+      mutate_all(as.character)
+  })
+
 
 print("headlesss")
 # Create a new page
@@ -92,7 +123,6 @@ page_df <- browser_df %>%
   glimpse
 
 
-print("sooo")
 # pw_restart <- function() {
 #   reticulate::py_run_string("p.stop()")
 #   pw_init(use_xvfb = xxxx)
@@ -249,12 +279,14 @@ library(tidyverse)
 
 
 
-thosearethere <- full_repos %>% 
+thosearethere <- out %>% 
+  rename(tag = release,
+         file_name = filename) %>% 
   arrange(desc(tag)) %>% 
   separate(tag, into = c("country", "timeframe"), remove = F, sep = "-") %>% 
   mutate(day  = str_remove(file_name, "\\.rds|\\.zip")) %>% 
   distinct(country, day, timeframe) %>% 
-  filter(str_detect(timeframe, time_preset)) %>% 
+  # filter(str_detect(timeframe, time_preset)) %>% 
   mutate(day = lubridate::ymd(day))
 
 if(nrow(thosearethere)==0){
@@ -275,7 +307,7 @@ download_it <- function(download_url, file_name) {
 download_it_now <- safely(download_it, quiet = F)
 
 if(file.exists("blacklist.csv")) {
-  blacklist <- read_csv("blacklist.csv")
+  blacklist <- read_csv("blacklist.csv") %>% mutate(day = lubridate::ymd(day))
 } else {
   blacklist <- tibble(country = "", day = lubridate::ymd("2020-01-01"))
 }
@@ -300,14 +332,14 @@ nicetohave <- rawlings %>%
 
 
 thoseneedtobehere %>% 
-  bind_rows(nicetohave) %>% 
+  bind_rows(nicetohave) %>%
   # filter(day <= (lubridate::ymd("2024-01-01"))) %>% 
   slice(1:5000) %>%
   # sample_n(10) %>%
   split(1:nrow(.)) %>% #bashR::simule_map(1)
   walk_progress( ~ {
     
-
+    
     # browser()
     file_name <-
       glue::glue("report/{.x$country}/{as.character(.x$day)}-{time_preset}.zip")
@@ -352,23 +384,28 @@ thoseneedtobehere %>%
       str_remove_all("(^\")|(\"$)") %>%
       str_remove_all("\\\\") %>%
       glimpse
-    
     if (is.na(download_url)) {
       if (!(.x$day %in% lubridate::as_date((lubridate::today() - lubridate::days(10)):lubridate::today()
       ))) {
         write(list(), file_name)
-      }
+      }       
+      
+      # print("ho")
+      # print(.x)
+      # debugonce(save_csv)
       save_csv(.x, path = "blacklist.csv")
+      # print("ho")
+      
     } else if (str_detect(download_url, "facebook.com/help/contact/")) {
       cli::cli_alert_danger("Blocked")
       Sys.sleep(10)
       return("Blocked")
     } else {
       # try({
-        res <- download_it_now(download_url, file_name)       
+      res <- download_it_now(download_url, file_name)       
       # })
       if(!is.null(res$error)) return("Waitlisted")
-        
+      
     }
     
     
@@ -396,7 +433,7 @@ thoseneedtobehere %>%
 
 
 print("NL DOWNLOADED")
-dir.create("reports")
+# dir.create("reports")
 
 tat_path <- thosearethere %>% 
   mutate(path = paste0("report/", country, "/", day, "-", timeframe, ".zip")) %>% 
@@ -406,9 +443,9 @@ report_paths <- dir(paste0("report"), full.names = T, recursive = T) %>%
   sort(decreasing = T) %>%
   setdiff(tat_path$path) %>%
   sort()
-  # keep(~str_detect(.x, "2024-01-01")) %>% 
-  # keep(~str_detect(.x, "last_7_days"))
-  # .[200:202]
+# keep(~str_detect(.x, "2024-01-01")) %>% 
+# keep(~str_detect(.x, "last_7_days"))
+# .[200:202]
 
 latest_dat <- tat_path %>%
   group_by(country) %>% 
@@ -467,7 +504,7 @@ for (report_path in report_paths) {
   tframe <- str_remove(str_split(rawww, "-") %>% unlist() %>% .[length(.)], ".zip")
   the_date <- str_remove_all(rawww[3], paste0(".zip|-", tframe))   
   
-   cntry_name <- full_cntry_list %>% 
+  cntry_name <- full_cntry_list %>% 
     filter(iso2c == cntry_str) %>% 
     pull(country)
   
@@ -550,23 +587,23 @@ for (report_path in report_paths) {
       }
     }
     
-
+    
     
     
     file.remove(paste0(the_date, ".rds"))
     file.remove(paste0(the_date, ".zip"))   
   })
   
-
+  
   
   gc()
   
 }
-  # # .[1:7] %>% 
-  # walk_progress( ~ {
-  # 
-  #   
-  # })
+# # .[1:7] %>% 
+# walk_progress( ~ {
+# 
+#   
+# })
 
 # unzip("report/TN/2023-11-28.zip", exdir = "extracted", overwrite = T)
 
