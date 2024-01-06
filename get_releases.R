@@ -44,13 +44,14 @@ pacman::p_load(
 
 
 
-out <- cntries %>% 
+out2 <- cntries %>% 
   map(~{
     .x %>% 
     paste0(c("-yesterday", "-last_7_days", "-last_30_days", 
              "-last_90_days", "-lifelong"))
   }) %>% 
   unlist() %>% 
+  .[str_detect(., "-last_7_days")] %>% 
   # .[100:120] %>% 
   map_dfr_progress(~{
     the_assets <- httr::GET(paste0("https://github.com/favstats/meta_ad_reports/releases/expanded_assets/", .x))

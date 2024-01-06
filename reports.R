@@ -307,7 +307,7 @@ download_it <- function(download_url, file_name) {
 download_it_now <- safely(download_it, quiet = F)
 
 if(file.exists("blacklist.csv")) {
-  blacklist <- read_csv("blacklist.csv") %>% mutate(day = lubridate::ymd(day))
+  blacklist <- read_csv("blacklist.csv") %>% mutate(day = lubridate::ymd(day)) %>% filter(day <= lubridate::ymd("2023-12-31"))
 } else {
   blacklist <- tibble(country = "", day = lubridate::ymd("2020-01-01"))
 }
