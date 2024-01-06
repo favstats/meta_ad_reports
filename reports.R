@@ -11,7 +11,7 @@ options(python_init = TRUE)
 
 # cntry_str <- "NL"
 time_preset <- commandArgs(trailingOnly = TRUE)
-time_preset <- "last_90_days"
+# time_preset <- "lifelong"
 
 # install.packages("pacman")
 pacman::p_load(
