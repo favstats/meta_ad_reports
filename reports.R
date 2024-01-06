@@ -11,7 +11,7 @@ options(python_init = TRUE)
 
 # cntry_str <- "NL"
 time_preset <- commandArgs(trailingOnly = TRUE)
-# time_preset <- "lifelong"
+time_preset <- "last_90_days"
 
 # install.packages("pacman")
 pacman::p_load(
@@ -298,7 +298,7 @@ nicetohave <- rawlings %>%
   # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
   filter(day >= (lubridate::ymd("2022-01-01"))) %>%
   arrange(desc(day), country) %>% 
-  slice(1:10)
+  slice(1:1000)
 
 
 
