@@ -40,15 +40,12 @@ if(!("playwrightr" %in% tibble::as_tibble(installed.packages())$Package)){
   remotes::install_github("benjaminguinaudeau/playwrightr")
 }
 
+# releases <- piggyback::pb_releases()
 
-
+# debugonce(pb_releases)
 # Call the function to perform the operation
-full_repos <- get_full_release()
-saveRDS(full_repos, "full_repos.rds")
-Sys.sleep(1)
-pb_upload_file_fr("full_repos.rds", repo = "favstats/meta_ad_reports", tag = "ReleaseInfo", releases = full_repos)
-Sys.sleep(1)
-file.remove("full_repos.rds")
+full_repos <- read_rds("https://github.com/favstats/meta_ad_reports/releases/download/ReleaseInfo/full_repos.rds")
+
 # options(googledrive_quiet = TRUE)
 # 
 # drive_auth(path = Sys.getenv("GOOGLE_APPLICATION_KEY"))
@@ -298,7 +295,7 @@ nicetohave <- rawlings %>%
   # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
   filter(day >= (lubridate::ymd("2022-01-01"))) %>%
   arrange(desc(day), country) %>% 
-  slice(1:1000)
+  sample_n(1000)
 
 
 
