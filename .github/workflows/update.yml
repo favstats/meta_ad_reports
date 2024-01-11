@@ -73,3 +73,7 @@ jobs:
       - name: "Script - Render"
         run: Rscript -e "rmarkdown::render('README.Rmd', output_format = 'github_document');file.remove('README.html')"
 
+      - name: "Commit"
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Script Routine Thirty
