@@ -11,7 +11,7 @@ options(python_init = TRUE)
 
 # cntry_str <- "NL"
 time_preset <- commandArgs(trailingOnly = TRUE)
-# time_preset <- "lifelong"
+time_preset <- "last_90_days"
 
 # install.packages("pacman")
 pacman::p_load(
@@ -319,7 +319,7 @@ rawlings <- dt %>%
   anti_join(thosearethere) %>%
   anti_join(blacklist)
 
-thoseneedtobehere <- rawlings %>% 
+thoseneedtobehere <- rawlings %>%
   # filter(day >= (lubridate::today() - lubridate::days(7))) %>% 
   filter(day >= (lubridate::ymd("2024-01-01"))) 
 
@@ -331,8 +331,13 @@ nicetohave <- rawlings %>%
 
 
 
-thoseneedtobehere %>% 
-  bind_rows(nicetohave) %>%
+thoseneedtobehere %>%
+bind_rows(nicetohave) %>%
+  # filter(country == "BA") %>% 
+  # filter(day>=lubridate::ymd("2024-01-01")) %>% 
+# tibble(country = "BA", 
+#        day = seq.Date(from = lubridate::ymd("2024-01-07"), 
+#                              to = lubridate::ymd("2024-01-07"), by = "1 day")) %>%
   # filter(day <= (lubridate::ymd("2024-01-01"))) %>% 
   slice(1:5000) %>%
   # sample_n(10) %>%
