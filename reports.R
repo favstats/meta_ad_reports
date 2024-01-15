@@ -93,6 +93,7 @@ out <- cntries %>%
                "-last_90_days", "-lifelong"))
   }) %>% 
   unlist() %>% 
+  keep(~str_detect(.x, time_preset)) %>% 
   # .[100:120] %>% 
   map_dfr_progress(~{
     the_assets <- httr::GET(paste0("https://github.com/favstats/meta_ad_reports/releases/expanded_assets/", .x))
