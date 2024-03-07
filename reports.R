@@ -1,7 +1,6 @@
 unlink("node_modules", recursive = T, force = T)
 unlink("out", recursive = T, force = T)
 
-library(playwrightr)
 # library(tidyverse)
 options(timeout=300)
 
@@ -39,6 +38,8 @@ pacman::p_load(
 if(!("playwrightr" %in% tibble::as_tibble(installed.packages())$Package)){
   remotes::install_github("benjaminguinaudeau/playwrightr")
 }
+
+library(playwrightr)
 
 # releases <- piggyback::pb_releases()
 
