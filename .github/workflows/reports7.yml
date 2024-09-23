@@ -46,6 +46,5 @@ jobs:
         run: npx playwright install --with-deps
       - name: "Check Playwright CLI"
         run: npx playwright --version
-
       - name: "Script - Meta Run"
         run: Rscript 'reports.R' "last_7_days"
