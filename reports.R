@@ -12,7 +12,7 @@ options(python_init = TRUE)
 time_preset <- commandArgs(trailingOnly = TRUE)
 # time_preset <- "last_90_days"
 
-# install.packages("pacman")
+install.packages("pacman")
 pacman::p_load(
   reticulate,
   vroom,
