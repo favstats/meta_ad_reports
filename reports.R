@@ -14,6 +14,7 @@ time_preset <- commandArgs(trailingOnly = TRUE)
 
 install.packages("pacman")
 pacman::p_load(
+  tidyverse,
   reticulate,
   vroom,
   progress,
