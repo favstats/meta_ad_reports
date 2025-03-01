@@ -102,10 +102,15 @@ jobs:
       - name: "Check Playwright CLI"
         run: npx playwright --version
       - name: Create Conda Environment
+        run: conda create -n r-reticulate python=3.11 -y
+      
+      - name: Install Python Packages
         run: |
-          conda create -n r-reticulate python=3.11 -y
-          conda activate r-reticulate
-          pip install --upgrade pip
-          pip install xvfbwrapper playwright
+          conda run -n r-reticulate python -m pip install --upgrade pip
+          conda run -n r-reticulate python -m pip install xvfbwrapper playwright
+          
+      - name: Debug Conda Environment
+        run: conda run -n r-reticulate python -c "import sys; print(sys.executable)"
+          
       - name: "Script - Meta Run"
         run: Rscript 'reports.R' "last_90_days"

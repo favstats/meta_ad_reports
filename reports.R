@@ -62,16 +62,17 @@ if(Sys.info()[["sysname"]]=="Darwin"){
   # time_preset <- "last_90_days"
   
 } else{
-  
-  # Force reticulate to use the correct Python environment
+  # Load reticulate
   library(reticulate)
-  use_condaenv("r-reticulate", required = TRUE)
   
-  # Now install xvfbwrapper and playwright inside this environment
-  conda_install(envname = "r-reticulate", packages = "xvfbwrapper", pip = TRUE)
+  # Manually set the Python path (works better in GitHub Actions)
+  use_python("/usr/share/miniconda/envs/r-reticulate/bin/python", required = TRUE)
+  
+  # Install xvfbwrapper and playwright inside the correct environment
+  py_install("xvfbwrapper")
   print("installed xvfbwrapper")
   
-  conda_install(envname = "r-reticulate", packages = "playwright", pip = TRUE)
+  py_install("playwright")
   print("installed playwright")
   
   # Explicitly check if the module exists before proceeding
