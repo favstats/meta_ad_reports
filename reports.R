@@ -56,18 +56,31 @@ full_repos <- read_rds("https://github.com/favstats/meta_ad_reports/releases/dow
 # drive_auth(path = Sys.getenv("GOOGLE_APPLICATION_KEY"))
 
 # conda_install(packages = "fcntl", pip = T)
-if(Sys.info()[["sysname"]]=="Windows"){
+if(Sys.info()[["sysname"]]=="Darwin"){
   
   pw_init(use_xvfb = F)
+  # time_preset <- "last_90_days"
+  
 } else{
   
-  conda_install(packages = "xvfbwrapper", pip = T)
+  # Force reticulate to use the correct Python environment
+  library(reticulate)
+  use_condaenv("r-reticulate", required = TRUE)
   
+  # Now install xvfbwrapper and playwright inside this environment
+  conda_install(envname = "r-reticulate", packages = "xvfbwrapper", pip = TRUE)
   print("installed xvfbwrapper")
-  conda_install(packages = "playwright", pip = T)
+  
+  conda_install(envname = "r-reticulate", packages = "playwright", pip = TRUE)
   print("installed playwright")
   
-  pw_init(use_xvfb = T)
+  # Explicitly check if the module exists before proceeding
+  py_run_string("import xvfbwrapper")
+  
+  # Initialize Playwright with xvfb
+  pw_init(use_xvfb = TRUE)
+  
+  # Install Playwright browsers
   system("playwright install")
 }
 
