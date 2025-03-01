@@ -9,7 +9,7 @@ on:
 jobs:
   update-google-reports:
     name: Update Meta Reports
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     env:
@@ -19,6 +19,45 @@ jobs:
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: 'release'
+          
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          cache-version: 1
+          needs: |
+            any::tidyverse
+            any::httr
+            any::remotes
+            any::shiny
+            any::scales
+            any::treemap
+            any::here
+            any::jsonlite
+            any::janitor
+            any::quarto
+            any::highcharter
+            any::lubridate
+            any::gt
+            any::gtExtras
+            any::pacman
+            any::openxlsx
+            any::sf
+            any::xml2
+            any::rvest
+            any::reticulate
+            any::fs
+            any::countrycode
+            any::progress
+            any::cli
+            any::digest
+            any::glue
+            any::vroom
+            any::prettydoc
+            any::DT
+            any::piggyback
+            any::httr2
+            any::openssl
+            any::priceR
+          
       - name: Setup - Checkout repo
         uses: actions/checkout@v3
       - name: Apt-get update things
@@ -32,6 +71,10 @@ jobs:
           libxml2-dev \
           libharfbuzz-dev \
           libfribidi-dev
+          
+      - name: Install Python deps for Playwright
+        run: pip3 install --no-cache-dir xvfbwrapper playwright
+        
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: Setup Node.js
         uses: actions/setup-node@v2
