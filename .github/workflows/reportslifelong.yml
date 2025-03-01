@@ -20,7 +20,6 @@ jobs:
         with:
           r-version: 'release'
           
-          
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           cache-version: 1
@@ -59,8 +58,7 @@ jobs:
             any::openssl
             any::priceR
           
-          
-          
+        
       - name: Setup - Checkout repo
         uses: actions/checkout@v3
       - name: Apt-get update things
@@ -74,9 +72,9 @@ jobs:
           libxml2-dev \
           libharfbuzz-dev \
           libfribidi-dev \
-          libasound2t64 \
-          libffi8 \
-          libx264-164 \
+          libasound2 \
+          libffi7 \
+          libx264-dev \
           libnss3 \
           libxcomposite1 \
           libxcursor1 \
@@ -103,6 +101,20 @@ jobs:
         run: npx playwright install --with-deps
       - name: "Check Playwright CLI"
         run: npx playwright --version
+      - name: Create Conda Environment
+        run: conda create -n r-reticulate python=3.11 -y
+      
+      - name: Install Python Packages
+        run: |
+          conda run -n r-reticulate python -m pip install --upgrade pip
+          conda run -n r-reticulate python -m pip install xvfbwrapper playwright
+          
+      - name: Debug Conda Environment
+        run: conda run -n r-reticulate python -c "import sys; print(sys.executable)"
+          
+      - name: Reinstall Playwright Browsers
+        run: |
+          conda run -n r-reticulate playwright install --force
       - name: "Script - Meta Run"
         run: Rscript 'reports.R' "lifelong"
 
