@@ -72,7 +72,7 @@ jobs:
           libxml2-dev \
           libharfbuzz-dev \
           libfribidi-dev \
-          libasound2t64 \
+          libasound2 \
           libffi7 \
           libx264-dev \
           libnss3 \
