@@ -70,7 +70,24 @@ jobs:
           libcurl4-openssl-dev \
           libxml2-dev \
           libharfbuzz-dev \
-          libfribidi-dev
+          libfribidi-dev \
+          libasound2 \
+          libffi8 \
+          libx264-164 \
+          libnss3 \
+          libxcomposite1 \
+          libxcursor1 \
+          libxdamage1 \
+          libxrandr2 \
+          libgbm-dev \
+          libgtk-3-0 \
+          libpango-1.0-0 \
+          libatk1.0-0 \
+          libcairo2 \
+          libx11-xcb1 \
+          libx11-6 \
+          libxcb1
+          
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: Setup Node.js
         uses: actions/setup-node@v2
