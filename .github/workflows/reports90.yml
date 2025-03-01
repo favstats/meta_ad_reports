@@ -21,42 +21,43 @@ jobs:
           r-version: 'release'
           
       - uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        cache-version: 1
-        needs: |
-          any::tidyverse
-          any::httr
-          any::remotes
-          any::shiny
-          any::scales
-          any::treemap
-          any::here
-          any::jsonlite
-          any::janitor
-          any::quarto
-          any::highcharter
-          any::lubridate
-          any::gt
-          any::gtExtras
-          any::pacman
-          any::openxlsx
-          any::sf
-          any::xml2
-          any::rvest
-          any::reticulate
-          any::fs
-          any::countrycode
-          any::progress
-          any::cli
-          any::digest
-          any::glue
-          any::vroom
-          any::prettydoc
-          any::DT
-          any::piggyback
-          any::httr2
-          any::openssl
-          any::priceR
+        with:
+          cache-version: 1
+          packages: |
+            any::tidyverse
+            any::httr
+            any::remotes
+            any::shiny
+            any::scales
+            any::treemap
+            any::here
+            any::jsonlite
+            any::janitor
+            any::quarto
+            any::highcharter
+            any::lubridate
+            any::gt
+            any::gtExtras
+            any::pacman
+            any::openxlsx
+            any::sf
+            any::xml2
+            any::rvest
+            any::reticulate
+            any::fs
+            any::countrycode
+            any::progress
+            any::cli
+            any::digest
+            any::glue
+            any::vroom
+            any::prettydoc
+            any::DT
+            any::piggyback
+            any::httr2
+            any::openssl
+            any::priceR
+          
         
       - name: Setup - Checkout repo
         uses: actions/checkout@v3

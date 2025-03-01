@@ -20,7 +20,7 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           cache-version: 1
-          needs: |
+          packages: |
             any::tidyverse
             any::httr
             any::remotes
@@ -54,6 +54,7 @@ jobs:
             any::httr2
             any::openssl
             any::priceR
+          
           
       - name: Setup - Checkout repo
         uses: actions/checkout@v3
