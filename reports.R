@@ -82,7 +82,7 @@ if(Sys.info()[["sysname"]]=="Darwin"){
   pw_init(use_xvfb = TRUE)
   
   # Install Playwright browsers
-  system("playwright install")
+  system("playwright install --force")
 }
 
 
