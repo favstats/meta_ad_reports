@@ -12,7 +12,14 @@ options(python_init = TRUE)
 time_preset <- commandArgs(trailingOnly = TRUE)
 # time_preset <- "last_90_days"
 
-install.packages("pacman")
+if(length(time_preset)==0){
+  time_preset <- "last_30_days"
+}
+
+if(!("pacman" %in% tibble::as_tibble(installed.packages())$Package)){
+  install.packages("pacman")
+}
+
 pacman::p_load(
   tidyverse,
   reticulate,
@@ -46,7 +53,7 @@ library(playwrightr)
 
 # debugonce(pb_releases)
 # Call the function to perform the operation
-full_repos <- read_rds("https://github.com/favstats/meta_ad_reports/releases/download/ReleaseInfo/full_repos.rds")
+full_repos <- read_rds("https://github.com/favstats/meta_ad_reports2/raw/refs/heads/main/data/full_repos.rds")
 
 
 
@@ -112,7 +119,7 @@ out <- cntries %>%
   keep(~str_detect(.x, time_preset)) %>% 
   # .[100:120] %>% 
   map_dfr_progress(~{
-    the_assets <- httr::GET(paste0("https://github.com/favstats/meta_ad_reports/releases/expanded_assets/", .x))
+    the_assets <- httr::GET(paste0("https://github.com/favstats/meta_ad_reports2/releases/expanded_assets/", .x))
     
     the_assets %>% httr::content() %>% 
       html_elements(".Box-row") %>% 
@@ -309,7 +316,7 @@ thosearethere <- out %>%
 if(nrow(thosearethere)==0){
   thosearethere <- tibble(timeframe = "", day = lubridate::ymd("2020-01-01"), country = "")
 } else {
-  print(glimpse(thosearethere))
+  # print(glimpse(thosearethere))
 }
 # thosearethere %>% write_rds("test.rds", compress = "xz")
 # thosearethere %>% saveRDS("test2.rds")
@@ -350,14 +357,17 @@ nicetohave <- rawlings %>%
 
 thoseneedtobehere %>%
 bind_rows(nicetohave) %>%
+  filter(day > (lubridate::ymd("2025-07-05"))) %>%
   # filter(country == "BA") %>% 
   # filter(day>=lubridate::ymd("2024-01-01")) %>% 
 # tibble(country = "BA", 
 #        day = seq.Date(from = lubridate::ymd("2024-01-07"), 
 #                              to = lubridate::ymd("2024-01-07"), by = "1 day")) %>%
   # filter(day <= (lubridate::ymd("2024-01-01"))) %>% 
-  slice(1:5000) %>%
-  # sample_n(10) %>%
+  # slice(1:5000) %>%
+  # slice(1:2) %>%
+  sample_n(10, replace = T) %>%
+  distinct(country, day, .keep_all = T) %>% 
   split(1:nrow(.)) %>% #bashR::simule_map(1)
   walk_progress( ~ {
     
@@ -513,8 +523,10 @@ progress_bar <- function(current, total, bar_width = 50) {
 # releases <- pb_releases()
 release_names <- full_repos$tag %>% unique
 
+# report_path <- report_paths[1]
+
 for (report_path in report_paths) {
-  print(report_path)
+  # print(report_path)
   progress_bar(which(report_path==report_paths, report_paths), total = length(report_paths))
   
   unzip(report_path, exdir = "extracted")
@@ -556,7 +568,7 @@ for (report_path in report_paths) {
       filter(is.na(name_disclaimer_amount))  %>%
       janitor::remove_empty()
     print("##within2")
-    print(thedata)
+    # print(thedata)
   }
   
   # print("helloo")
@@ -574,7 +586,7 @@ for (report_path in report_paths) {
   # cntry_name
   
   if(!(the_tag %in% release_names)){
-    pb_release_create_fr(repo = "favstats/meta_ad_reports", 
+    pb_release_create_fr(repo = "favstats/meta_ad_reports2", 
                          tag = the_tag,
                          body = paste0("This release includes ", cntry_name ," '", tframe ,"' Meta ad spending reports."), 
                          releases = full_repos)    # Sys.sleep(5)
@@ -587,8 +599,8 @@ for (report_path in report_paths) {
     # print(the_tag)
     # debugonce(pb_upload_file_fr)
     # debugonce(pb_upload_file_fr)
-    pb_upload_file_fr(paste0(the_date, ".rds"), repo = "favstats/meta_ad_reports", tag = the_tag, releases = full_repos)
-    pb_upload_file_fr(paste0(the_date, ".zip"), repo = "favstats/meta_ad_reports", tag = the_tag, releases = full_repos)
+    pb_upload_file_fr(paste0(the_date, ".rds"), repo = "favstats/meta_ad_reports2", tag = the_tag, releases = full_repos)
+    pb_upload_file_fr(paste0(the_date, ".zip"), repo = "favstats/meta_ad_reports2", tag = the_tag, releases = full_repos)
     
     lat_dat <- latest_dat %>% 
       filter(country == cntry_str)
@@ -599,15 +611,15 @@ for (report_path in report_paths) {
       check_it <- (lubridate::ymd(the_date) >= lat_dat$day) 
     }
     
-    if(length(check_it)!=0){
-      if(check_it){
-        file.rename(paste0(the_date, ".rds"), "latest.rds")
-        # debugonce(pb_upload_file_fr)
-        pb_upload_file_fr("latest.rds", repo = "favstats/meta_ad_reports", tag = the_tag, releases = full_repos)     
-        
-        file.remove("latest.rds")
-      }
-    }
+    # if(length(check_it)!=0){
+    #   if(check_it){
+    #     file.rename(paste0(the_date, ".rds"), "latest.rds")
+    #     # debugonce(pb_upload_file_fr)
+    #     pb_upload_file_fr("latest.rds", repo = "favstats/meta_ad_reports", tag = the_tag, releases = full_repos)     
+    #     
+    #     file.remove("latest.rds")
+    #   }
+    # }
     
     
     
