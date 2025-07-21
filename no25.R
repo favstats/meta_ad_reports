@@ -13,7 +13,7 @@ time_preset <- commandArgs(trailingOnly = TRUE)
 # time_preset <- "last_90_days"
 
 if(length(time_preset)==0){
-  time_preset <- "last_30_days"
+  time_preset <- "last_90_days"
 }
 
 if(!("pacman" %in% tibble::as_tibble(installed.packages())$Package)){
@@ -43,45 +43,8 @@ pacman::p_load(
 )
 
 
-install_from_github_zip <- function(repo) {
-  pkg <- basename(repo)
-  if (requireNamespace(pkg, quietly = TRUE)) {
-    message(sprintf("✔ Package '%s' is already installed.", pkg))
-    return(invisible(TRUE))
-  }
-  
-  branches <- c("main", "master")
-  success <- FALSE
-  
-  for (branch in branches) {
-    zip_url <- sprintf("https://github.com/%s/archive/refs/heads/%s.zip", repo, branch)
-    temp_file <- tempfile(fileext = ".zip")
-    temp_dir <- tempfile()
-    
-    message(sprintf("→ Trying branch '%s'...", branch))
-    try({
-      download.file(zip_url, destfile = temp_file, mode = "wb", quiet = TRUE)
-      unzip(temp_file, exdir = temp_dir)
-      pkg_path <- file.path(temp_dir, paste0(pkg, "-", branch))
-      install.packages(pkg_path, repos = NULL, type = "source")
-      if (requireNamespace(pkg, quietly = TRUE)) {
-        message(sprintf("✔ Package '%s' installed successfully from branch '%s'.", pkg, branch))
-        success <- TRUE
-        break
-      }
-    }, silent = TRUE)
-  }
-  
-  if (!success) {
-    stop(sprintf("✖ Failed to install '%s' from GitHub using branches: %s",
-                 pkg, paste(branches, collapse = ", ")))
-  }
-  
-  invisible(TRUE)
-}
-
 if(!("playwrightr" %in% tibble::as_tibble(installed.packages())$Package)){
-  install_from_github_zip("benjaminguinaudeau/playwrightr")
+  remotes::install_github("benjaminguinaudeau/playwrightr")
 }
 
 library(playwrightr)
@@ -146,7 +109,7 @@ full_cntry_list <- readRDS("cntry_list.rds") %>%
 
 cntries <- full_cntry_list$iso2c
 
-out <- cntries %>% 
+out <- "NO" %>% 
   map(~{
     .x %>% 
       paste0(c("-yesterday", "-last_7_days", "-last_30_days", 
@@ -393,17 +356,18 @@ nicetohave <- rawlings %>%
 
 
 thoseneedtobehere %>%
-bind_rows(nicetohave) %>%
+  bind_rows(nicetohave) %>%
   filter(day > (lubridate::ymd("2025-07-05"))) %>%
+  # filter(country == "NO") %>% 
   # filter(country == "BA") %>% 
   # filter(day>=lubridate::ymd("2024-01-01")) %>% 
-# tibble(country = "BA", 
-#        day = seq.Date(from = lubridate::ymd("2024-01-07"), 
-#                              to = lubridate::ymd("2024-01-07"), by = "1 day")) %>%
+  # tibble(country = "BA", 
+  #        day = seq.Date(from = lubridate::ymd("2024-01-07"), 
+  #                              to = lubridate::ymd("2024-01-07"), by = "1 day")) %>%
   # filter(day <= (lubridate::ymd("2024-01-01"))) %>% 
   # slice(1:5000) %>%
   # slice(1:2) %>%
-  sample_n(5000, replace = T) %>%
+  sample_n(1000, replace = T) %>%
   distinct(country, day, .keep_all = T) %>% 
   split(1:nrow(.)) %>% #bashR::simule_map(1)
   walk_progress( ~ {
@@ -428,7 +392,7 @@ bind_rows(nicetohave) %>%
       print("ATTENTION FOR SOME REASON NO TIMEPRESET")
       
       # time_preset <- "last_7_days"
-      time_preset <- "last_30_days"
+      time_preset <- "last_90_days"
       # time_preset <- "yesterday"
       # time_preset <- "lifelong"
       
@@ -561,6 +525,9 @@ progress_bar <- function(current, total, bar_width = 50) {
 release_names <- full_repos$tag %>% unique
 
 # report_path <- report_paths[1]
+
+report_paths <- report_paths %>% 
+  keep(~str_detect(.x, "NO"))
 
 for (report_path in report_paths) {
   # print(report_path)
